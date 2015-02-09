@@ -50,13 +50,13 @@ Esvisit(ast, visitStatement, visitExpression)
 * `Try`
 * `While`
 * `DoWhile`
-* `For`
-* `DeclarationFor`
-* `IdentifierForIn`
-* `MemberForIn`
-* `DeclarationForIn`
-* `Function`
-* `Variable`
+* `For`: `for (EXPR; EXPR; EXPR) STMT`
+* `DeclarationFor`: `for (VAR_DECL; EXPR; EXPR) STMT`
+* `IdentifierForIn`: `for (ID in EXPR) STMT`
+* `MemberForIn`: `for (MEMBER in EXPR) STMT`
+* `DeclarationForIn`: `for (var ID [=EXPR] in EXPR) STMT`
+* `Function` alias for `FunctionDeclaration`
+* `Variable` alias for `VariableDeclaration`
 
 ## Expression Types
 
@@ -66,20 +66,20 @@ Esvisit(ast, visitStatement, visitExpression)
 * `Function`
 * `Sequence`
 * `Unary`
-* `IdentifierTypeof`
-* `IdentifierDelete`
-* `MemberDelete`
+* `IdentifierTypeof`: `typeof ID`
+* `IdentifierDelete`: `delete ID`
+* `MemberDelete`: `delete MEMBER`
 * `Binary`
-* `IdentifierAssignment`
-* `MemberAssignment`
-* `IdentifierUpdate`
-* `MemberUpdate`
+* `IdentifierAssignment`: `ID ASS_OP EXPR` 
+* `MemberAssignment`: `MEMBER ASS_OP EXPR`
+* `IdentifierUpdate`: `++ID | --ID | ID++ | ID--` 
+* `MemberUpdate`: `++MEMBER | --MEMBER | MEMBER++ | MEMBER--`
 * `Logical`
 * `Conditional`
 * `New`
-* `Call`
-* `MemberCall`
-* `Eval`
+* `MemberCall`: `MEMBER(EXPRS)`
+* `Call`: EXPR(EXPRS)
+* `Eval`: `eval(EXPRS)`
 * `Member`
-* `Identifier`
-* `Literal`
+* `Identifier`: alias for `Identifier` 
+* `Literal`: alias for `Literal`
