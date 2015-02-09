@@ -1,4 +1,4 @@
-# esvisit
+# Esvisit
 
 Esvisit is simple a npm module for visiting JavaScript abstract syntax trees that are compatible with the Mozilla parser API as described in https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API#Programs.
 This module support exclusvely ECMAScript5 as described in http://www.ecma-international.org/ecma-262/5.1/.
