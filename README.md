@@ -1,16 +1,16 @@
 # Esvisit
 
 Esvisit is a simple npm module for visiting JavaScript abstract syntax trees that are compatible with the Mozilla parser API as described in https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API#Programs.
-This module support exclusvely ECMAScript5 as described in http://www.ecma-international.org/ecma-262/5.1/.
+This module supports exclusvely ECMAScript5 as described in http://www.ecma-international.org/ecma-262/5.1/.
 Benefits of using Esvisit includes:
 * Process iteratively and avoid recursion.
-* Get an alternative type that better reflect the JavaScript semantic.
+* Get an alternative type that better reflects JavaScript semantic.
 * Visit only actual statements and expressions.
 
 For instance the statement `o.a(1);` will trigger the below visits:
   1. `Expression`; The whole statement expression `o.a(1);`.
   2. `MemberCall`; The member call: `o.a(1)`. 
-  3. `Identifier`; the object callee (thisArgument): `o`.
+  3. `Identifier`; the object callee (this argument): `o`.
   4. `Literal`; the unique argument: `1`.
 
 ## Demonstration
@@ -39,6 +39,8 @@ function visit (kind, type, node, ondone) {
 
 Esvisit(ast, visitStatement, visitExpression)
 ```
+
+Output:
 
 ```shell
 Begin statement: Expression (nodeID: 1)
