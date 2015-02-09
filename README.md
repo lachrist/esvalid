@@ -8,10 +8,10 @@ Benefits of using Esvisit includes:
 * Visit only actual statements and expressions.
 
 For instance the statement `o.a(1);` will trigger the below visits:
-1. `Expression`; The whole statement expression `o.a(1);`.
-2. `MemberCall`; The member call: `o.a(1)`. 
-3. `Identifier`; the object callee (thisArgument): `o`.
-4. `Literal`; the unique argument: `1`.
+  1. `Expression`; The whole statement expression `o.a(1);`.
+  2. `MemberCall`; The member call: `o.a(1)`. 
+  3. `Identifier`; the object callee (thisArgument): `o`.
+  4. `Literal`; the unique argument: `1`.
 
 ## Demonstration
 
@@ -19,8 +19,8 @@ For instance the statement `o.a(1);` will trigger the below visits:
 var Esvisit = require('esvisit');
 var Esprima = require('esprima');
 
-var code = 'o.a = eval("2*"+x);' // Your JS code here...
-var ast = Esprima.parse(code)
+var code = 'o.a = eval("2*"+x);'; // Your JS code here...
+var ast = Esprima.parse(code);
 
 var counter = 0;
 var depth = 0;
