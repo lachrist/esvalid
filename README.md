@@ -38,20 +38,20 @@ Esvisit(ast, visitStatement, visitExpression)
 
 Type | Interpretation
 :----|:--------------
-`Empty` |
-`Block` |
-`Expression` |
-`If` |
-`Labeled` |
-`Break` |
-`Continue` |
-`With` |
-`Switch` |
-`Return` |
-`Throw` |
-`Try` |
-`While` |
-`DoWhile` |
+`Empty` | *
+`Block` | *
+`Expression` | *
+`If` | *
+`Labeled` | *
+`Break` | *
+`Continue` | *
+`With` | *
+`Switch` | *
+`Return` | *
+`Throw` | *
+`Try` | *
+`While` | *
+`DoWhile` | *
 `For` | `for (EXPR; EXPR; EXPR) STMT`
 `DeclarationFor` | `for (VAR_DECL; EXPR; EXPR) STMT`
 `IdentifierForIn` | `for (ID in EXPR) STMT`
@@ -60,30 +60,35 @@ Type | Interpretation
 `Function` | alias for `FunctionDeclaration`
 `Variable` | alias for `VariableDeclaration`
 
+(*): Add `Statement` to the type to obtain the Mozilla alias.
+
 ## Expression Types
 
 Type | Interpretation
 :----|:--------------
-`This` |
-`Array` |
-`Object` |
-`Function` |
-`Sequence` |
-`Unary` |
+`This` | **
+`Array` | **
+`Object` | **
+`Function` | **
+`Sequence` | **
+`Unary` | **
 `IdentifierTypeof` | `typeof ID`
 `IdentifierDelete` | `delete ID`
 `MemberDelete` | `delete MEMBER`
-`Binary` |
+`Binary` | **
 `IdentifierAssignment` | `ID ASS_OP EXPR` 
 `MemberAssignment` | `MEMBER ASS_OP EXPR`
 `IdentifierUpdate` | `++ID | --ID | ID++ | ID--` 
 `MemberUpdate` | `++MEMBER | --MEMBER | MEMBER++ | MEMBER--`
-`Logical` |
-`Conditional` |
-`New` |
+`Logical` | **
+`Conditional` | **
+`New` | **
 `MemberCall` | `MEMBER(EXPRS)`
 `Call` | EXPR(EXPRS)
 `Eval` | `eval(EXPRS)`
-`Member` |
+`Member` | **
 `Identifier` | alias for `Identifier` 
 `Literal` | alias for `Literal`
+
+(*): Add `Expression` to the type to obtain the Mozilla alias.
+
