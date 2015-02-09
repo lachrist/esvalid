@@ -1,5 +1,5 @@
 { "name" : "esvisit"
-, "version" : "0.0.1"
+, "version" : "0.0.2"
 , "files" : ["infos.js", "main.js", "visit.js"]
 , "main": "main.js"
 , "description" : "Expression/Statement visitor for ECMAScript5 Mozilla ASTs"

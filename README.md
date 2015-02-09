@@ -7,12 +7,6 @@ Benefits of using Esvisit includes:
 * Get an alternative type that better reflects JavaScript semantic.
 * Visit only actual statements and expressions.
 
-For instance the statement `o.a(1);` will trigger the below visits:
-  1. `Expression`; The whole statement expression `o.a(1);`.
-  2. `MemberCall`; The member call: `o.a(1)`. 
-  3. `Identifier`; the object callee (this argument): `o`.
-  4. `Literal`; the unique argument: `1`.
-
 ## API
 
 This module exposes four functions:
@@ -114,8 +108,8 @@ Type | Interpretation | Information
 `Binary` | ** | `[Operator]`
 `IdentifierAssignment` | `ID ASS_OP EXPR` | `[Name, Operator]`
 `MemberAssignment` | `MEMBER ASS_OP EXPR` | `[MaybeProperty, Operator]`
-`IdentifierUpdate` | `++ID | --ID | ID++ | ID--` | `[IsPrefix, Operator, Name]`
-`MemberUpdate` | `++MEMBER | --MEMBER | MEMBER++ | MEMBER--` | `[IsPrefix, Operator, MaybeProperty]`
+`IdentifierUpdate` | `++ID`, `--ID`, `ID++`, `ID--` | `[IsPrefix, Operator, Name]`
+`MemberUpdate` | `++MEMBER`, `--MEMBER`, `MEMBER++`, `MEMBER--` | `[IsPrefix, Operator, MaybeProperty]`
 `Logical` | ** | `[Operator]`
 `Conditional` | ** | `[]`
 `New` | ** | `[ArgumentsLength]`
