@@ -74,7 +74,7 @@ Type | Interpretation | Information
 `Switch` | * | `[Cases::[IsDefault, Length]]`
 `Return` | * | `[HasValue]`
 `Throw` | * | `[]`
-`Try` | * `[BodyLength, MaybeCatchParameter, MaybeCatchLength, MaybeFinalizerLength]`
+`Try` | * | `[BodyLength, MaybeCatchParameter, MaybeCatchLength, MaybeFinalizerLength]`
 `While` | * | `[]`
 `DoWhile` | * | `[]`
 `DeclarationFor` | `for (VAR_DECL; EXPR; EXPR) STMT` | `[Declarations::[Name, HasInit], HasTest, HasUpdate]`
