@@ -13,6 +13,14 @@ For instance the statement `o.a(1);` will trigger the below visits:
   3. `Identifier`; the object callee (this argument): `o`.
   4. `Literal`; the unique argument: `1`.
 
+## API
+
+This module exposes four functions:
+* `Visit(Node, StatementCallback, ExpressionCallBack)`
+* `ExtractInformation(EsvisitType, Node)`
+* `ExtractStatementInformation(EsvisitType, Statement)`
+* `ExtractExpressionInformation(EsvisitType, Expression)`
+
 ## Demonstration
 
 ```javascript
