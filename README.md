@@ -36,50 +36,54 @@ Esvisit(ast, visitStatement, visitExpression)
 
 ## Statement Types
 
-* `Empty`
-* `Block`
-* `Expression`
-* `If`
-* `Labeled`
-* `Break`
-* `Continue`
-* `With`
-* `Switch`
-* `Return`
-* `Throw`
-* `Try`
-* `While`
-* `DoWhile`
-* `For`: `for (EXPR; EXPR; EXPR) STMT`
-* `DeclarationFor`: `for (VAR_DECL; EXPR; EXPR) STMT`
-* `IdentifierForIn`: `for (ID in EXPR) STMT`
-* `MemberForIn`: `for (MEMBER in EXPR) STMT`
-* `DeclarationForIn`: `for (var ID [=EXPR] in EXPR) STMT`
-* `Function` alias for `FunctionDeclaration`
-* `Variable` alias for `VariableDeclaration`
+Type | Interpretation
+:----|:--------------
+`Empty`
+`Block`
+`Expression`
+`If`
+`Labeled`
+`Break`
+`Continue`
+`With`
+`Switch`
+`Return`
+`Throw`
+`Try`
+`While`
+`DoWhile`
+`For` | `for (EXPR; EXPR; EXPR) STMT`
+`DeclarationFor` | `for (VAR_DECL; EXPR; EXPR) STMT`
+`IdentifierForIn` | `for (ID in EXPR) STMT`
+`MemberForIn` | `for (MEMBER in EXPR) STMT`
+`DeclarationForIn` | `for (var ID [=EXPR] in EXPR) STMT`
+`Function` | alias for `FunctionDeclaration`
+`Variable` | alias for `VariableDeclaration`
 
 ## Expression Types
 
-* `This`
-* `Array`
-* `Object`
-* `Function`
-* `Sequence`
-* `Unary`
-* `IdentifierTypeof`: `typeof ID`
-* `IdentifierDelete`: `delete ID`
-* `MemberDelete`: `delete MEMBER`
-* `Binary`
-* `IdentifierAssignment`: `ID ASS_OP EXPR` 
-* `MemberAssignment`: `MEMBER ASS_OP EXPR`
-* `IdentifierUpdate`: `++ID | --ID | ID++ | ID--` 
-* `MemberUpdate`: `++MEMBER | --MEMBER | MEMBER++ | MEMBER--`
-* `Logical`
-* `Conditional`
-* `New`
-* `MemberCall`: `MEMBER(EXPRS)`
-* `Call`: EXPR(EXPRS)
-* `Eval`: `eval(EXPRS)`
-* `Member`
-* `Identifier`: alias for `Identifier` 
-* `Literal`: alias for `Literal`
+Type | Interpretation
+:----|:--------------
+`This`
+`Array`
+`Object`
+`Function`
+`Sequence`
+`Unary`
+`IdentifierTypeof` | `typeof ID`
+`IdentifierDelete` | `delete ID`
+`MemberDelete` | `delete MEMBER`
+`Binary`
+`IdentifierAssignment` | `ID ASS_OP EXPR` 
+`MemberAssignment` | `MEMBER ASS_OP EXPR`
+`IdentifierUpdate` | `++ID | --ID | ID++ | ID--` 
+`MemberUpdate` | `++MEMBER | --MEMBER | MEMBER++ | MEMBER--`
+`Logical`
+`Conditional`
+`New`
+`MemberCall` | `MEMBER(EXPRS)`
+`Call` | EXPR(EXPRS)
+`Eval` | `eval(EXPRS)`
+`Member`
+`Identifier` | alias for `Identifier` 
+`Literal` | alias for `Literal`
