@@ -1,15 +1,15 @@
 # Esvisit
 
-Esvisit is simple a npm module for visiting JavaScript abstract syntax trees that are compatible with the Mozilla parser API as described in https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API#Programs.
+Esvisit is a simple npm module for visiting JavaScript abstract syntax trees that are compatible with the Mozilla parser API as described in https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API#Programs.
 This module support exclusvely ECMAScript5 as described in http://www.ecma-international.org/ecma-262/5.1/.
-Benfits of using Esvisit include:
+Benefits of using Esvisit includes:
 * Process iteratively and avoid recursion.
 * Get an alternative type that better reflect the JavaScript semantic.
 * Visit only actual statements and expressions.
 
 For instance the statement `o.a(1);` will trigger the below visits:
-1. `Expression`: The whole statement expression `o.a(1);`.
-2. `MemberCall`: The member call: `o.a(1)`. 
+1. `Expression`; The whole statement expression `o.a(1);`.
+2. `MemberCall`; The member call: `o.a(1)`. 
 3. `Identifier`; the object callee (thisArgument): `o`.
 4. `Literal`; the unique argument: `1`.
 
@@ -19,19 +19,42 @@ For instance the statement `o.a(1);` will trigger the below visits:
 var Esvisit = require('esvisit');
 var Esprima = require('esprima');
 
-var code = 'var x = 1;' // Your JS code here...
+var code = 'o.a = eval("2*"+x);' // Your JS code here...
 var ast = Esprima.parse(code)
 
 var counter = 0;
+var depth = 0;
+function indent () { return (new Array(depth+1)).join("  ") }
 function visitStatement (type, stmt, ondone) { visit('statement', type, stmt, ondone) }
 function visitExpression (type, expr, ondone) { visit('expression', type, expr, ondone) }
 function visit (kind, type, node, ondone) {
   var id = ++counter;
-  console.log('Begin '+kind+': '+type+' (nodeID: '+id+')')
-  ondone(function () { console.log('End '+kind+': '+type+' (nodeID: '+id+')') })
+  console.log(indent()+'Begin '+kind+': '+type+' (nodeID: '+id+')')
+  depth++
+  ondone(function () {
+    depth--
+    console.log(indent()+'End '+kind+': '+type+' (nodeID: '+id+')')
+  })
 }
 
 Esvisit(ast, visitStatement, visitExpression)
+```
+
+```shell
+Begin statement: Expression (nodeID: 1)
+  Begin expression: MemberAssignment (nodeID: 2)
+    Begin expression: Eval (nodeID: 3)
+      Begin expression: Binary (nodeID: 4)
+        Begin expression: Literal (nodeID: 5)
+        End expression: Literal (nodeID: 5)
+        Begin expression: Identifier (nodeID: 6)
+        End expression: Identifier (nodeID: 6)
+      End expression: Binary (nodeID: 4)
+    End expression: Eval (nodeID: 3)
+    Begin expression: Identifier (nodeID: 7)
+    End expression: Identifier (nodeID: 7)
+  End expression: MemberAssignment (nodeID: 2)
+End statement: Expression (nodeID: 1)
 ```
 
 ## Statement Types

@@ -38,7 +38,7 @@ function left (l, e) {
 }
 
 function member (m, e) {
-  e.push(m.object)
+  e(m.object)
   if (m.computed) { e(m.property) }
 }
 
