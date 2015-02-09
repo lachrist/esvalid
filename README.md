@@ -38,7 +38,7 @@ Esvisit(ast, visitStatement, visitExpression)
 
 Type | Interpretation
 :----|:--------------
-`Empty` | *
+`Empty` | alias for `EmptyStatement`
 `Block` | *
 `Expression` | *
 `If` | *
@@ -66,7 +66,7 @@ Type | Interpretation
 
 Type | Interpretation
 :----|:--------------
-`This` | **
+`This` | alias for `ThisExpression`
 `Array` | **
 `Object` | **
 `Function` | **
@@ -90,5 +90,5 @@ Type | Interpretation
 `Identifier` | alias for `Identifier` 
 `Literal` | alias for `Literal`
 
-(*): Add `Expression` to the type to obtain the Mozilla alias.
+(**): Add `Expression` to the type to obtain the Mozilla alias.
 
