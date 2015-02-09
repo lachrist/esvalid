@@ -19,101 +19,101 @@ For instance the statement `o.a(1);` will trigger the below visits:
 var Esvisit = require('esvisit');
 var Esprima = require('esprima');
 
-var code = 'o.a = eval("2*"+x);'; // Your JS code here...
-var ast = Esprima.parse(code);
+var code = 'o.a = eval("2*"+x);' // Your JS code here...
+var ast = Esprima.parse(code)
 
 var counter = 0;
 var depth = 0;
 function indent () { return (new Array(depth+1)).join("  ") }
-function visitStatement (type, stmt, ondone) { visit('statement', type, stmt, ondone) }
-function visitExpression (type, expr, ondone) { visit('expression', type, expr, ondone) }
+function visitStatement (type, stmt, ondone) { visit('Statement', type, stmt, ondone) }
+function visitExpression (type, expr, ondone) { visit('Expression', type, expr, ondone) }
 function visit (kind, type, node, ondone) {
   var id = ++counter;
-  console.log(indent()+'Begin '+kind+': '+type+' (nodeID: '+id+')')
+  console.log(indent()+'Begin'+kind+id+': '+type+'('+Esvisit.ExtractInformation(type, node).join(", ")+')')
   depth++
   ondone(function () {
     depth--
-    console.log(indent()+'End '+kind+': '+type+' (nodeID: '+id+')')
+    console.log(indent()+'End'+id)
   })
 }
 
-Esvisit(ast, visitStatement, visitExpression)
+Esvisit.Visit(ast, visitStatement, visitExpression)
 ```
 
 Output:
 
 ```shell
-Begin statement: Expression (nodeID: 1)
-  Begin expression: MemberAssignment (nodeID: 2)
-    Begin expression: Eval (nodeID: 3)
-      Begin expression: Binary (nodeID: 4)
-        Begin expression: Literal (nodeID: 5)
-        End expression: Literal (nodeID: 5)
-        Begin expression: Identifier (nodeID: 6)
-        End expression: Identifier (nodeID: 6)
-      End expression: Binary (nodeID: 4)
-    End expression: Eval (nodeID: 3)
-    Begin expression: Identifier (nodeID: 7)
-    End expression: Identifier (nodeID: 7)
-  End expression: MemberAssignment (nodeID: 2)
-End statement: Expression (nodeID: 1)
+BeginStatement1: Expression()
+  BeginExpression2: MemberAssignment(a, =)
+    BeginExpression3: EvalCall(1)
+      BeginExpression4: Binary(+)
+        BeginExpression5: Literal(2*)
+        End5
+        BeginExpression6: Identifier(x)
+        End6
+      End4
+    End3
+    BeginExpression7: Identifier(o)
+    End7
+  End2
+End1
 ```
 
 ## Statement Types
 
-Type | Interpretation
-:----|:--------------
-`Empty` | alias for `EmptyStatement`
-`Block` | *
-`Expression` | *
-`If` | *
-`Labeled` | *
-`Break` | *
-`Continue` | *
-`With` | *
-`Switch` | *
-`Return` | *
-`Throw` | *
-`Try` | *
-`While` | *
-`DoWhile` | *
-`For` | `for (EXPR; EXPR; EXPR) STMT`
-`DeclarationFor` | `for (VAR_DECL; EXPR; EXPR) STMT`
-`IdentifierForIn` | `for (ID in EXPR) STMT`
-`MemberForIn` | `for (MEMBER in EXPR) STMT`
-`DeclarationForIn` | `for (var ID [=EXPR] in EXPR) STMT`
-`Function` | alias for `FunctionDeclaration`
-`Variable` | alias for `VariableDeclaration`
+Type | Interpretation | Information
+:----|:---------------|:-----------
+`Empty` | alias for `EmptyStatement` | `[]`
+`Block` | * | `[Length]`
+`Expression` | * | `[]`
+`If` | * | `[HasAlternate]`
+`Labeled` | * | `[Label]`
+`Break` | * | `[MaybeLabel]`
+`Continue` | * | `[MaybeLabel]`
+`With` | * | `[]`
+`Switch` | * | `[Cases::[IsDefault, Length]]`
+`Return` | * | `[HasValue]`
+`Throw` | * | `[]`
+`Try` | * `[BodyLength, MaybeCatchParameter, MaybeCatchLength, MaybeFinalizerLength]`
+`While` | * | `[]`
+`DoWhile` | * | `[]`
+`DeclarationFor` | `for (VAR_DECL; EXPR; EXPR) STMT` | `[Declarations::[Name, HasInit], HasTest, HasUpdate]`
+`For` | `for (EXPR; EXPR; EXPR) STMT` | `[HasInit, HasTest, HasUpdate]`
+`IdentifierForIn` | `for (ID in EXPR) STMT` | `[Name]`
+`MemberForIn` | `for (MEMBER in EXPR) STMT` | `[MaybeProperty]`
+`DeclarationForIn` | `for (var ID [=EXPR] in EXPR) STMT` | `[Name, HasInit]`
+`Definition` | alias for `FunctionDeclaration` | `[Name, Parameters::[Name], BodyLength]`
+`Declaration` | alias for `VariableDeclaration` | `[Declarations::[Name, HasInit]]`
 
 (*): Add `Statement` to the type to obtain the Mozilla alias.
 
 ## Expression Types
 
-Type | Interpretation
-:----|:--------------
-`This` | alias for `ThisExpression`
-`Array` | **
-`Object` | **
-`Function` | **
-`Sequence` | **
-`Unary` | **
-`IdentifierTypeof` | `typeof ID`
-`IdentifierDelete` | `delete ID`
-`MemberDelete` | `delete MEMBER`
-`Binary` | **
-`IdentifierAssignment` | `ID ASS_OP EXPR` 
-`MemberAssignment` | `MEMBER ASS_OP EXPR`
-`IdentifierUpdate` | `++ID | --ID | ID++ | ID--` 
-`MemberUpdate` | `++MEMBER | --MEMBER | MEMBER++ | MEMBER--`
-`Logical` | **
-`Conditional` | **
-`New` | **
-`MemberCall` | `MEMBER(EXPRS)`
-`Call` | EXPR(EXPRS)
-`Eval` | `eval(EXPRS)`
-`Member` | **
-`Identifier` | alias for `Identifier` 
-`Literal` | alias for `Literal`
+Type | Interpretation | Information
+:----|:---------------|:-----------
+`This` | alias for `ThisExpression` | `[]`
+`Array` | ** | `[Elements::[IsInitialized]]`
+`Object` | ** | `[Properties::[KeyValue, Kind, MaybeBodyLength]]`
+`Function` | ** | `[MaybeName, Parameters::[Name], BodyLength]`
+`Sequence` | ** | `[Length]`
+`IdentifierTypeof` | `typeof ID` | `[Name]`
+`IdentifierDelete` | `delete ID` | `[Name]`
+`MemberDelete` | `delete MEMBER` | `[MaybeProperty]`
+`Unary` | ** | `[Operator]`
+`Binary` | ** | `[Operator]`
+`IdentifierAssignment` | `ID ASS_OP EXPR` | `[Name, Operator]`
+`MemberAssignment` | `MEMBER ASS_OP EXPR` | `[MaybeProperty, Operator]`
+`IdentifierUpdate` | `++ID | --ID | ID++ | ID--` | `[IsPrefix, Operator, Name]`
+`MemberUpdate` | `++MEMBER | --MEMBER | MEMBER++ | MEMBER--` | `[IsPrefix, Operator, MaybeProperty]`
+`Logical` | ** | `[Operator]`
+`Conditional` | ** | `[]`
+`New` | ** | `[ArgumentsLength]`
+`MemberCall` | `MEMBER(EXPRS)` | `[MaybeProperty, ArgumentsLength]`
+`EvalCall` | `eval(EXPRS)` | `[ArgumentsLength]`
+`Call` | `EXPR(EXPRS)` | `[ArgumentsLength]`
+`Member` | ** | `[MaybeProperty]`
+`Identifier` | alias for `Identifier` | [Name] 
+`Literal` | alias for `Literal` | [Value]
 
 (**): Add `Expression` to the type to obtain the Mozilla alias.
 
