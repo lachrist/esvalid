@@ -17,9 +17,9 @@ For instance the statement `o.a(1);` will trigger the below visits:
 
 This module exposes four functions:
 * `Visit(Node, StatementCallback, ExpressionCallBack)` where the callbacks are called with:
-  1. `EsvisitType`: the type of the node according to section 'Statement Types' and 'Expression Types'.
-  2. `Node`: current node being visited.
-  3. `Ondone`: add a function to be called when all the (recursive) childs of the `Node` parameter has been visited.
+  1. `EsvisitType`: the type of the current node according to section 'Statement Types' and 'Expression Types'.
+  2. `Node`: node being visited.
+  3. `Ondone`: add a function to be called when all the (recursive) childs of the current node have been visited.
 * `ExtractInformation(EsvisitType, Node)`
 * `ExtractStatementInformation(EsvisitType, Statement)`
 * `ExtractExpressionInformation(EsvisitType, Expression)`
