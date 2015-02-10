@@ -1,26 +1,22 @@
 
-module.exports = function (node, svisit, evisit) {
+module.exports = function (svisit, evisit) {
   var n
   var buffer = []
   var nodes = []
-  function mark (marker) { nodes.push(marker) }
-  function e (n) {
-    n.expr = true
-    buffer.push(n)
-  }
-  function s (n) {
-    n.stmt = true
-    buffer.push(n)
-  }
-  if (node.type === "Program") { for (var i=0; i<node.body.length; i++) { s(node.body[i]) } }
-  if (stmts[node.type]) { s(node) }
-  if (exprs[node.type]) { e(node) }
-  while (n = buffer.pop()) { nodes.push(n) }
-  while (n = nodes.pop()) {
-    if (typeof n === "function") { n() }
-    if (n.stmt) { svisit(stmts[n.type](n, s, e), n, mark) }
-    if (n.expr) { evisit(exprs[n.type](n, s, e), n, mark) }
+  function e (n) { n.expr = true ; buffer.push(n) }
+  function s (n) { n.stmt = true ; buffer.push(n) }
+  return function (x) {
+    if (typeof x === "function") { return nodes.push(x) }
+    if (x.type === "Program") { for (var i=0; i<x.body.length; i++) { s(x.body[i]) } }
+    if (stmts[x.type]) { s(x) }
+    if (exprs[x.type]) { e(x) }
     while (n = buffer.pop()) { nodes.push(n) }
+    while (n = nodes.pop()) {
+      if (typeof n === "function") { n() }
+      if (n.stmt) { svisit(stmts[n.type](n, s, e), n) }
+      if (n.expr) { evisit(exprs[n.type](n, s, e), n) }
+      while (n = buffer.pop()) { nodes.push(n) }
+    }
   }
 }
 
@@ -49,7 +45,7 @@ function declarations (ds, e) {
 }
 
 function block (b, s) {
-  for (var i=0; i<b.length; i++) { s(b[i]) }
+  for (var i=0; i<b.body.length; i++) { s(b.body[i]) }
 }
 
 ////////////////
@@ -119,7 +115,7 @@ stmts.ThrowStatement = function (n, s, e) {
 }
 
 stmts.TryStatement = function (n, s, e) {
-  block(n.body, s)
+  block(n.block, s)
   if (n.handler) { block(n.handler.body, s) }
   if (n.finalizer) { block(n.finalizer, s) }
   return "Try"
@@ -164,8 +160,8 @@ stmts.ForInStatement = function (n, s, e) {
   } else {
     var type = left(n.left, e)+"ForIn" 
   }
-  e(node.right)
-  s(node.body)
+  e(n.right)
+  s(n.body)
   return type
 }
 
@@ -215,8 +211,8 @@ exprs.SequenceExpression = function (n, s, e) {
 }
 
 exprs.UnaryExpression = function (n, s, e) {
-  if (node.operator === "typeof" && n.argument.type === "Identifier") { return "IdentifierTypeof" }
-  if (node.operator === "delete") { try { return left(n.argument, e)+"Delete" } catch (error) {} }
+  if (n.operator === "typeof" && n.argument.type === "Identifier") { return "IdentifierTypeof" }
+  if (n.operator === "delete") { try { return left(n.argument, e)+"Delete" } catch (error) {} }
   e(n.argument)
   return "Unary"
 }
@@ -250,7 +246,7 @@ exprs.ConditionalExpression = function (n, s, e) {
 }
 
 exprs.NewExpression = function (n, s, e) {
-  e(node.callee)
+  e(n.callee)
   for (var i=0; i<n.arguments.length; i++) { e(n.arguments[i]) }
   return "New"
 }
@@ -258,7 +254,7 @@ exprs.NewExpression = function (n, s, e) {
 exprs.CallExpression = function (n, s, e) {
   if (n.callee.name === "eval") { var type = "EvalCall" }
   else if (n.callee.type === "MemberExpression") { var type = (member(n.callee, e), "MemberCall") }
-  else { var type = (e(n.calee), "Call") }
+  else { var type = (e(n.callee), "Call") }
   for (var i=0; i<n.arguments.length; i++) { e(n.arguments[i]) }
   return type
 }

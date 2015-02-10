@@ -31,7 +31,7 @@ stmts.With             = empty
 stmts.Switch           = function (n) { return [n.cases.map(switchcase)] }
 stmts.Return           = function (n) { return [Boolean(n.argument)] }
 stmts.Throw            = empty
-stmts.Try              = function (n) { return [n.body.length, n.handler?identifier(n.handler.param):null, n.handler?n.handler.body.body.length:null, n.finalizer?n.finalizer.body.length:null] }
+stmts.Try              = function (n) { return [n.block.length, n.handler?identifier(n.handler.param):null, n.handler?n.handler.body.body.length:null, n.finalizer?n.finalizer.body.length:null] }
 stmts.While            = empty
 stmts.DoWhile          = empty
 stmts.DeclarationFor   = function (n) { return [n.init.declarations.map(declaration), Boolean(n.test), Boolean(n.update)] }
@@ -39,7 +39,7 @@ stmts.For              = function (n) { return [Boolean(n.init), Boolean(n.test)
 stmts.IdentifierForIn  = function (n) { return [identifier(n.left)] }
 stmts.MemberForIn      = function (n) { return [member(n.left)] }
 stmts.DeclarationForIn = function (n) { return declaration(n.left) }
-stmts.Definition       = function (n) { return [identifier(n.id), n.params.map(identifier), n.body.length] }
+stmts.Definition       = function (n) { return [identifier(n.id), n.params.map(identifier), n.body.body.length] }
 stmts.Declaration      = function (n) { return [n.declarations.map(declaration)] }
 
 /////////////////
@@ -49,9 +49,9 @@ stmts.Declaration      = function (n) { return [n.declarations.map(declaration)]
 var exprs = {}
 
 exprs.This                 = empty
-exprs.Array                = function (n) { return [n.map(Boolean)] }
+exprs.Array                = function (n) { return [n.elements.map(Boolean)] }
 exprs.Object               = function (n) { return [n.properties.map(property)] }
-exprs.Function             = function (n) { return [identifier(n.id), n.params.map(identifier), n.body.length] }
+exprs.Function             = function (n) { return [identifier(n.id), n.params.map(identifier), n.body.body.length] }
 exprs.Sequence             = function (n) { return [n.expressions.length] }
 exprs.IdentifierTypeof     = function (n) { return [identifier(n.argument)] }
 exprs.IdentifierDelete     = function (n) { return [identifier(n.argument)] }

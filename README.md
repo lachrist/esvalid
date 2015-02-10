@@ -7,42 +7,32 @@ Benefits of using Esvisit includes:
 * Get an alternative type that better reflects JavaScript semantic.
 * Visit only actual statements and expressions.
 
-## API
-
-This module exposes four functions:
-* `Visit(Node, StatementCallback, ExpressionCallBack)` where the callbacks are called with:
-  1. `EsvisitType`: the type of the current node according to section 'Statement Types' and 'Expression Types'.
-  2. `Node`: node being visited.
-  3. `Ondone`: add a function to be called when all the (recursive) childs of the current node have been visited.
-* `ExtractInformation(EsvisitType, Node)`
-* `ExtractStatementInformation(EsvisitType, Statement)`
-* `ExtractExpressionInformation(EsvisitType, Expression)`
-
 ## Demonstration
 
 ```javascript
 var Esvisit = require('esvisit');
 var Esprima = require('esprima');
 
-var code = 'o.a = eval("2*"+x);' // Your JS code here...
-var ast = Esprima.parse(code)
-
-var counter = 0;
-var depth = 0;
 function indent () { return (new Array(depth+1)).join("  ") }
-function visitStatement (type, stmt, ondone) { visit('Statement', type, stmt, ondone) }
-function visitExpression (type, expr, ondone) { visit('Expression', type, expr, ondone) }
-function visit (kind, type, node, ondone) {
+function visitStatement (type, stmt) { visit('Statement', type, stmt) }
+function visitExpression (type, expr) { visit('Expression', type, expr) }
+function visit (kind, type, node) {
   var id = ++counter;
   console.log(indent()+'Begin'+kind+id+': '+type+'('+Esvisit.ExtractInformation(type, node).join(", ")+')')
   depth++
-  ondone(function () {
+  push(function () {
     depth--
     console.log(indent()+'End'+id)
   })
 }
 
-Esvisit.Visit(ast, visitStatement, visitExpression)
+var code = 'o.a = eval("2*"+x);' // Your JS code here...
+var ast = Esprima.parse(code)
+var counter = 0;
+var depth = 0;
+var push = Esvisit.Prepare(visitStatement, visitExpression)
+
+push(ast)
 ```
 
 Output:
@@ -63,6 +53,16 @@ BeginStatement1: Expression()
   End2
 End1
 ```
+
+## API
+
+This module exposes four functions:
+* `Prepare(StatementCallback, ExpressionCallBack)`: prepare a visit, returns a function to push something on the worker list. Callbacks are called with:
+  1. `EsvisitType`: the type of the current node according to section 'Statement Types' and 'Expression Types'.
+  2. `Node`: node being visited.
+* `ExtractInformation(EsvisitType, Node)`
+* `ExtractStatementInformation(EsvisitType, Statement)`
+* `ExtractExpressionInformation(EsvisitType, Expression)`
 
 ## Statement Types
 
