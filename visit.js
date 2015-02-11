@@ -13,8 +13,8 @@ module.exports = function (svisit, evisit) {
     while (n = buffer.pop()) { nodes.push(n) }
     while (n = nodes.pop()) {
       if (typeof n === "function") { n() }
-      if (n.stmt) { svisit(stmts[n.type](n, s, e), n) }
-      if (n.expr) { evisit(exprs[n.type](n, s, e), n) }
+      if (n.stmt) { (delete n.stmt, svisit(stmts[n.type](n, s, e), n)) }
+      if (n.expr) { (delete n.expr, evisit(exprs[n.type](n, s, e), n)) }
       while (n = buffer.pop()) { nodes.push(n) }
     }
   }
