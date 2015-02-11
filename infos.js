@@ -38,7 +38,7 @@ stmts.DeclarationFor   = function (n) { return [n.init.declarations.map(declarat
 stmts.For              = function (n) { return [Boolean(n.init), Boolean(n.test), Boolean(n.update)] }
 stmts.IdentifierForIn  = function (n) { return [identifier(n.left)] }
 stmts.MemberForIn      = function (n) { return [member(n.left)] }
-stmts.DeclarationForIn = function (n) { return declaration(n.left) }
+stmts.DeclarationForIn = function (n) { return declaration(n.left.declarations[0]) }
 stmts.Definition       = function (n) { return [identifier(n.id), n.params.map(identifier), n.body.body.length] }
 stmts.Declaration      = function (n) { return [n.declarations.map(declaration)] }
 
