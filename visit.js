@@ -134,17 +134,13 @@ stmts.DoWhileStatement = function (n, s, e) {
 }
 
 stmts.ForStatement = function (n, s, e) {
+  var type = "For"
   if (n.init) {
-    if (n.init.type !== "VariableDeclaration") {
-      var type = "DeclarationFor"
-      e(n.init)
-    }
-    else {
-      var type = "For"
+    if (n.init.type === "VariableDeclaration") {
+      type = "DeclarationFor"
       declarations(n.init.declarations, e)
     }
-  } else {
-    var type = "For"
+    else { e(n.init) }
   }
   if (n.test) { e(n.test) }
   if (n.update) { e(n.update) }
