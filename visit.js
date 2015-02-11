@@ -95,7 +95,7 @@ stmts.WithStatement = function (n, s, e) {
 }
 
 stmts.SwitchStatement = function (n, s, e) {
-  e(n.descriminant)
+  e(n.discriminant)
   for (var i=0; i<n.cases.length; i++) {
     var c = n.cases[i]
     if (c.test) { e(c.test) }
