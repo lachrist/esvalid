@@ -1,6 +1,6 @@
 # Esvisit
 
-Esvisit is a simple npm module for visiting JavaScript abstract syntax trees that are compatible with the Mozilla parser API as described in https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API#Programs.
+Esvisit is a simple npm module for visiting JavaScript abstract syntax trees that are compatible with Mozilla parser API as described in https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API#Programs.
 This module supports exclusvely ECMAScript5 as described in http://www.ecma-international.org/ecma-262/5.1/.
 Benefits of using Esvisit includes:
 * Process iteratively and avoid recursion.
@@ -57,9 +57,7 @@ End1
 ## API
 
 This module exposes four functions:
-* `Prepare(StatementCallback, ExpressionCallBack)`: prepare a visit, returns a function to push something on the worker list. Callbacks are called with:
-  1. `EsvisitType`: the type of the current node according to section 'Statement Types' and 'Expression Types'.
-  2. `Node`: node being visited.
+* `Prepare(StatementCallback, ExpressionCallBack)`: prepare upcoming visits ; returns a function to push something on the worker list. Callbacks are called with: the Esvisit type of the current node and the current node itself. Esvisit types are described in the sections 'Statement Types' and 'Expression Types'
 * `ExtractInformation(EsvisitType, Node)`
 * `ExtractStatementInformation(EsvisitType, Statement)`
 * `ExtractExpressionInformation(EsvisitType, Expression)`
@@ -117,8 +115,8 @@ Type | Interpretation | Information
 `EvalCall` | `eval(EXPRS)` | `[ArgumentsLength]`
 `Call` | `EXPR(EXPRS)` | `[ArgumentsLength]`
 `Member` | ** | `[MaybeProperty]`
-`Identifier` | alias for `Identifier` | [Name] 
-`Literal` | alias for `Literal` | [Value]
+`Identifier` | alias for `Identifier` | `[Name]`
+`Literal` | alias for `Literal` | `[Value]`
 
 (**): Add `Expression` to the type to obtain the Mozilla alias.
 
