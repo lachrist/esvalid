@@ -67,6 +67,7 @@ This module exposes four functions:
 Type | Interpretation | Information
 :----|:---------------|:-----------
 `Empty` | alias for `EmptyStatement` | `[]`
+`UseStrict` | `'use strict';` | []
 `Block` | * | `[Length]`
 `Expression` | * | `[]`
 `If` | * | `[HasAlternate]`

@@ -21,6 +21,7 @@ function property (p) { return [p.key.type==="Literal"?p.key.value:p.key.name, p
 stmts = {}
 
 stmts.Empty            = empty
+stmts.UseStrict        = empty
 stmts.Block            = function (n) { return [n.body.length] }
 stmts.Expression       = empty
 stmts.If               = function (n) { return [Boolean(n.alternate)] }

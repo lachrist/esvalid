@@ -64,6 +64,7 @@ stmts.BlockStatement = function (n, s, e) {
 }
 
 stmts.ExpressionStatement = function (n, s, e) {
+  if (n.expression.type === "Literal" && n.expression.value === "use strict") { return "UseStrict" }
   e(n.expression)
   return "Expression"
 }
