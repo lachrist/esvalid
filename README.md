@@ -67,11 +67,11 @@ This module exposes four functions:
 Type | Interpretation | Information
 :----|:---------------|:-----------
 `Empty` | alias for `EmptyStatement` | `[]`
-`UseStrict` | `'use strict';` | []
+`Strict` | `'use strict';` | []
 `Block` | * | `[Length]`
 `Expression` | * | `[]`
 `If` | * | `[HasAlternate]`
-`Labeled` | * | `[Label]`
+`Label` | * | `[Label]`
 `Break` | * | `[MaybeLabel]`
 `Continue` | * | `[MaybeLabel]`
 `With` | * | `[]`
@@ -81,13 +81,13 @@ Type | Interpretation | Information
 `Try` | * | `[BodyLength, MaybeCatchParameter, MaybeCatchLength, MaybeFinalizerLength]`
 `While` | * | `[]`
 `DoWhile` | * | `[]`
-`DeclarationFor` | `for (VAR_DECL; EXPR; EXPR) STMT` | `[Declarations::[Name, HasInit], HasTest, HasUpdate]`
+`DeclarationFor` | `for (VAR_DECL; EXPR; EXPR) STMT` | `[Declarators::[Name, HasInit], HasTest, HasUpdate]`
 `For` | `for (EXPR; EXPR; EXPR) STMT` | `[HasInit, HasTest, HasUpdate]`
 `IdentifierForIn` | `for (ID in EXPR) STMT` | `[Name]`
 `MemberForIn` | `for (MEMBER in EXPR) STMT` | `[MaybeProperty]`
 `DeclarationForIn` | `for (var ID [=EXPR] in EXPR) STMT` | `[Name, HasInit]`
 `Definition` | alias for `FunctionDeclaration` | `[Name, Parameters::[Name], BodyLength]`
-`Declaration` | alias for `VariableDeclaration` | `[Declarations::[Name, HasInit]]`
+`Declaration` | alias for `VariableDeclaration` | `[Declarators::[Name, HasInit]]`
 
 (*): Add `Statement` to the type to obtain the Mozilla alias.
 

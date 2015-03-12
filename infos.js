@@ -1,7 +1,6 @@
 
-exports.node = function (type, node) { return (stmts[type]||exprs[type])(node) }
-exports.statement = function (type, stmt) { return stmts[type](stmt) }
-exports.expression = function (type, expr) { return exprs[type](expr) }
+exports.statement = function (stmt) { return stmts[stmt.$type](stmt) }
+exports.expression = function (expr) { return exprs[expr.$type](expr) }
 
 /////////////
 // Helpers //

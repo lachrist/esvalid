@@ -1,21 +1,21 @@
 
+var Type = require("./type.js")
+
 module.exports = function (svisit, evisit) {
-  var n
-  var buffer = []
-  var nodes = []
-  function e (n) { n.expr = true ; buffer.push(n) }
-  function s (n) { n.stmt = true ; buffer.push(n) }
+  var type, node, nodes = []
+  function push (node) { nodes.push(node) }
+  function pushmaybe (maybenode) { if (maybenode) { node.push(maybenode) } }
   return function (x) {
-    if (typeof x === "function") { return nodes.push(x) }
-    if (x.type === "Program") { for (var i=0; i<x.body.length; i++) { s(x.body[i]) } }
-    if (stmts[x.type]) { s(x) }
-    if (exprs[x.type]) { e(x) }
-    while (n = buffer.pop()) { nodes.push(n) }
-    while (n = nodes.pop()) {
-      if (typeof n === "function") { n() }
-      if (n.stmt) { (delete n.stmt, svisit(stmts[n.type](n, s, e), n)) }
-      if (n.expr) { (delete n.expr, evisit(exprs[n.type](n, s, e), n)) }
-      while (n = buffer.pop()) { nodes.push(n) }
+    if (typeof x === "function") { return push(x) }
+    if (x.type === "Program") { for (var i=x.body.length; i>0; i--) { push(x.body[i-1]) } }
+    else { push(x) }
+    while (node = nodes.pop()) {
+      if (typeof node === "function") { node() }
+      else if (!node.$halt) {
+        node.$type = Type(node)
+        if (stmts[node.$type]) { (svisit(node), stmts[node.$type](node, push, pushmaybe)) }
+        if (exprs[node.$type]) { (evisit(node), exprs[node.$type](node, push, pushmaybe)) }
+      }
     }
   }
 }
@@ -24,247 +24,77 @@ module.exports = function (svisit, evisit) {
 // Helpers //
 /////////////
 
-function left (l, e) {
-  if (l.type === "Identifier") { return "Identifier" }
-  if (l.type === "MemberExpression") {
-    member(l, e)
-    return "Member"
-  }
-  throw new Error("Unexpected left-hand side: "+l.type)
-}
-
-function member (m, e) {
-  e(m.object)
-  if (m.computed) { e(m.property) }
-}
-
-function declarations (ds, e) {
-  for (var i=0; i<ds.length; i++) {
-    if (ds[i].init) { e(ds[i].init) }
-  }
-}
-
-function block (b, s) {
-  for (var i=0; i<b.body.length; i++) { s(b.body[i]) }
-}
+function member (m, e) { e(m.object); if (m.computed) e(m.property); }
+function declarators (ds, pushmaybe) { for (var i=ds.length-1; i>=0; i--) { pushmaybe(ds[i].init) } }
+function nodes (nodes, push) { for (var i=nodes.length-1; i>=0; i--) { push(nodes[i]) } }
 
 ////////////////
 // Statements //
 ////////////////
 
-var stmts = {}
-
-stmts.EmptyStatement = function (n, s, e) {
-  return "Empty"
-}
-
-stmts.BlockStatement = function (n, s, e) {
-  block(n, s)
-  return "Block"
-}
-
-stmts.ExpressionStatement = function (n, s, e) {
-  if (n.expression.type === "Literal" && n.expression.value === "use strict") { return "UseStrict" }
-  e(n.expression)
-  return "Expression"
-}
-
-stmts.IfStatement = function (n, s, e) {
-  e(n.test)
-  s(n.consequent)
-  if (n.alternate) { s(n.alternate) }
-  return "If"
-}
-
-stmts.LabeledStatement = function (n, s, e) {
-  s(n.body)
-  return "Labeled"
-}
-
-stmts.BreakStatement = function (n, s, e) {
-  return "Break"
-}
-
-stmts.ContinueStatement = function (n, s, e) {
-  return "Continue"
-}
-
-stmts.WithStatement = function (n, s, e) {
-  e(n.object)
-  s(n.body)
-  return "With"
-}
-
-stmts.SwitchStatement = function (n, s, e) {
-  e(n.discriminant)
-  for (var i=0; i<n.cases.length; i++) {
-    var c = n.cases[i]
-    if (c.test) { e(c.test) }
-    for (var j=0; j<c.consequent.length; j++) { s(c.consequent[j]) }
-  }
-  return "Switch"
-}
-
-stmts.ReturnStatement = function (n, s, e) {
-  if (n.argument) { e(n.argument) }
-  return "Return"
-}
-
-stmts.ThrowStatement = function (n, s, e) {
-  e(n.argument)
-  return "Throw"
-}
-
-stmts.TryStatement = function (n, s, e) {
-  block(n.block, s)
-  if (n.handler) { block(n.handler.body, s) }
-  if (n.finalizer) { block(n.finalizer, s) }
-  return "Try"
-}
-
-stmts.WhileStatement = function (n, s, e) {
-  e(n.test)
-  s(n.body)
-  return "While"
-}
-
-stmts.DoWhileStatement = function (n, s, e) {
-  e(n.test)
-  s(n.body)
-  return "DoWhile"
-}
-
-stmts.ForStatement = function (n, s, e) {
-  var type = "For"
-  if (n.init) {
-    if (n.init.type === "VariableDeclaration") {
-      type = "DeclarationFor"
-      declarations(n.init.declarations, e)
-    }
-    else { e(n.init) }
-  }
-  if (n.test) { e(n.test) }
-  if (n.update) { e(n.update) }
-  s(n.body)
-  return type
-}
-
-stmts.ForInStatement = function (n, s, e) {
-  if (n.left.type === "VariableDeclaration") {
-    var type = "DeclarationForIn"
-    if (n.left.declarations.length != 1) { throw new Error("Illegal number of declarations within a for-in statement") }
-    if (n.left.declarations[0].init) { e(n.left.declarations[0].init) }
-  } else {
-    var type = left(n.left, e)+"ForIn" 
-  }
-  e(n.right)
-  s(n.body)
-  return type
-}
-
-stmts.FunctionDeclaration = function (n, s, e) {
-  block(n.body, s)
-  return "Definition"
-}
-
-stmts.VariableDeclaration = function (n, s, e) {
-  declarations(n.declarations, e)
-  return "Declaration"
+var stmts = {
+  Empty: Util.nil,
+  Strict: Util.nil,
+  Block: function (n, p, pm) { nodes(n.body, p) },
+  Expression: function (n, p, pm) { p(n.expression) },
+  If: function (n, p, pm) { (pm(n.alternate), p(n.consequent), p(n.test)) },
+  Label: function (n, p, pm) { p(n.body) },
+  Break: Util.nil,
+  Continue: Util.nil,
+  With: function (n, p, pm) { (p(n.body), p(n.object)) },
+  Switch: function (n, p, pm) {
+    for (var i=cases.length-1; i>=0; i--) { pm(n.cases[i].test); nodes(n.cases[i].consequent, p) }
+    p(n.discriminant)
+  },
+  Return: function (n, p, pm) { pm(n.argument) },
+  Throw: function (n, p, pm) { p(n.argument) },
+  Try: function (n, p, pm) {  
+    if (n.finalizer) { nodes(n.finalizer.body, p) }
+    if (n.handlers.length === 1) { nodes(n.handlers[0].body.body, p) }
+    nodes(n.block.body, p)
+  },
+  While: function (n, p, pm) { (p(n.body), p(n.test)) },
+  DoWhile: function (n, p, pm) { (p(n.body), p(n.test)) },
+  DeclarationFor: function (n, p, pm) { (p(n.body), pm(n.update), pm(n.test), declarators(n.init.declarations, pm)) },
+  For: function (n, p, pm) { (p(n.body), pm(n.update), pm(n.test), pm(n.init)) },
+  IdentifierForIn: function (n, p, pm) { (p(n.body), p(n.right)) },
+  MemberForIn: function (n, p, pm) { (p(n.body), p(n.right), member(n.left)) },
+  DeclarationForIn: function (n, p, pm) { (p(n.body), p(n.right), pm(n.left.declarations[0].init)) },
+  Definition: function (n, p, pm) { nodes(n.body.body, p) }
+  Declaration: function (n, p, pm) { declarators(n.declarations, pm) }
 }
 
 /////////////////
 // Expressions //
 /////////////////
 
-var exprs = {}
-
-exprs.ThisExpression = function (n, s, e) {
-  return "This"
-}
-
-exprs.ArrayExpression = function (n, s, e) {
-  for (var i=0; i<n.elements.length; i++) {
-    if (n.elements[i]) { e(n.elements[i]) }
-  }
-  return "Array"
-}
-
-exprs.ObjectExpression = function (n, s, e) {
-  for (var i=0; i<n.properties.length; i++) {
-    if (n.properties[i].kind === "init") { e(n.properties[i].value) }
-    else { block(n.properties[i].value.body, s) }
-  }
-  return "Object"
-}
-
-exprs.FunctionExpression = function (n, s, e) {
-  block(n.body, s)
-  return "Function"
-}
-
-exprs.SequenceExpression = function (n, s, e) {
-  for (var i=0; i<n.expressions.length; i++) { e(n.expressions[i]) }
-  return "Sequence"
-}
-
-exprs.UnaryExpression = function (n, s, e) {
-  if (n.operator === "typeof" && n.argument.type === "Identifier") { return "IdentifierTypeof" }
-  if (n.operator === "delete") { try { return left(n.argument, e)+"Delete" } catch (error) {} }
-  e(n.argument)
-  return "Unary"
-}
-
-exprs.BinaryExpression = function (n, s, e) {
-  e(n.left)
-  e(n.right)
-  return "Binary"
-}
-
-exprs.AssignmentExpression = function (n, s, e) {
-  e(n.right)
-  return left(n.left, e)+"Assignment"
-}
-
-exprs.UpdateExpression = function (n, s, e) {
-  return left(n.argument, e)+"Update"
-}
-
-exprs.LogicalExpression = function (n, s, e) {
-  e(n.left)
-  e(n.right)
-  return "Logical"
-}
-
-exprs.ConditionalExpression = function (n, s, e) {
-  e(n.test)
-  e(n.alternate)
-  e(n.consequent)
-  return "Conditional"
-}
-
-exprs.NewExpression = function (n, s, e) {
-  e(n.callee)
-  for (var i=0; i<n.arguments.length; i++) { e(n.arguments[i]) }
-  return "New"
-}
-
-exprs.CallExpression = function (n, s, e) {
-  if (n.callee.name === "eval") { var type = "EvalCall" }
-  else if (n.callee.type === "MemberExpression") { var type = (member(n.callee, e), "MemberCall") }
-  else { var type = (e(n.callee), "Call") }
-  for (var i=0; i<n.arguments.length; i++) { e(n.arguments[i]) }
-  return type
-}
-
-exprs.MemberExpression = function (n, s, e) {
-  member(n, e)
-  return "Member"
-}
-
-exprs.Identifier = function (n, s, e) {
-  return "Identifier"
-}
-
-exprs.Literal = function (n, s, e) {
-  return "Literal"
+var exprs = {
+  This: Util.nil,
+  Array: function (n, p, pm) { nodes(n.elements, pm) },
+  Object: function (n, p, pm) {
+    for (var i=n.properties.length-1; i>=0; i--) {
+      if (n.properties[i].kind === "init") { p(n.properties[i].value) }
+      else { nodes(n.properties[i].value.body.body, p) }
+    }
+  },
+  Function: function (n, p, pm) { nodes(n.body.body, p) },
+  Sequence: function (n, p, pm) { nodes(n.expressions, p) },
+  IdentifierTypeof: Util.nil,
+  IdentifierDelete: Util.nil,
+  MemberDelete: function (n, p, pm) { member(n.argument, p) },
+  Unary: function (n, p, pm) { p(n.argument) },
+  Binary: function (n, p, pm) { (p(n.right), p(n.left)) },
+  IdentifierAssignment: function (n, p, pm) { p(n.right) },
+  MemberAssignment: function (n, p, pm) { (p(n.right), member(n, p)) },
+  IdentifierUpdate: Util.nil,
+  MemberUpdate: function (n, p, pm) { member(n.argument) },
+  Logical: function (n, p, pm) { (p(n.right), p(n.left)) },
+  Conditional: function (n, p, pm) { (p(n.alternate), p(n.consequent), p(n.test)) },
+  New: function (n, p, pm) { (nodes(n.arguments, p), p(n.callee)) },
+  MemberCall: function (n, p, pm) { (nodes(n.arguments, p), member(n.callee, p)) },
+  EvalCall: function (n, p, pm) { nodes(n.arguments, p) },
+  Call: function (n, p, pm) { (nodes(n.arguments, p), p(n.callee)) },
+  Member: function (n, p, pm) { member(n, p) },
+  Identifier: Util.nil,
+  Literal: Util.nil
 }
