@@ -97,7 +97,7 @@ Type | Interpretation | Information
 :----|:---------------|:-----------
 `This` | alias for `ThisExpression` | `[]`
 `Array` | ** | `[Elements::[IsInitialized]]`
-`Object` | ** | `[Properties::[KeyValue, Kind, MaybeBodyLength]]`
+`Object` | ** | `[Properties::[KeyValue, Kind, MaybeParameter, MaybeBodyLength]]`
 `Function` | ** | `[MaybeName, Parameters::[Name], BodyLength]`
 `Sequence` | ** | `[Length]`
 `IdentifierTypeof` | `typeof ID` | `[Name]`

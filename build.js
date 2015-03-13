@@ -5,7 +5,7 @@
 
 function id (name) { return { type: "Identifier", name: name } }
 
-function block (stmts) { return { type: "BlockStatement", body: stmts }
+function block (stmts) { return { type: "BlockStatement", body: stmts } }
 
 function member (object, property) {
   var computed = typeof property !== "string"
@@ -13,14 +13,14 @@ function member (object, property) {
     type: "MemberExpression",
     object: object,
     computed: computed,
-    property: computed ? property : id(property)
+    property: computed ? property : identifier(property)
   }
 }
 
 function catchclause (param, stmts) {
   return {
     type:"CatchClause",
-    param: id(param),
+    param: identifier(param),
     body: block(stmts)
   }
 }
@@ -28,7 +28,7 @@ function catchclause (param, stmts) {
 function declarator (idname, init) {
   return {
     type: "VariableDeclarator",
-    id: id(idname),
+    id: identifier(idname),
     init: init
   }
 }
@@ -52,14 +52,16 @@ function literal (value) {
 // Statements //
 ////////////////
 
-exports.Empty = function () {
+var statements = {}
+
+statements.Empty = function () {
   return {
     $type: "Empty",
     type: "EmptyStatement"
   }
 }
 
-exports.Strict = function () {
+statements.Strict = function () {
   return {
     $type: "Strict",
     type: "ExpressionStatement",
@@ -70,7 +72,7 @@ exports.Strict = function () {
   }
 }
 
-exports.Block = function (body) {
+statements.Block = function (body) {
   return {
     $type: "Block",
     type: "BlockStatement",
@@ -78,7 +80,7 @@ exports.Block = function (body) {
   }
 }
 
-exports.Expression = function (expression) {
+statements.Expression = function (expression) {
   return {
     $type: "Expression",
     type: "ExpressionStatement",
@@ -86,7 +88,7 @@ exports.Expression = function (expression) {
   }
 }
 
-exports.If = function (test, consequent, alternate) {
+statements.If = function (test, consequent, alternate) {
   return {
     $type: "If",
     type: "IfStatement",
@@ -97,32 +99,32 @@ exports.If = function (test, consequent, alternate) {
 }
 
 
-exports.Label = function (labelname, body) {
+statements.Label = function (labelname, body) {
   return {
     $type: "Label",
     type: "LabeledStatement",
-    label: id(labelname),
+    label: identifier(labelname),
     body: body
   }
 }
 
-exports.Break = function (labelname) {
+statements.Break = function (labelname) {
   return {
     $type: "Break",
     type: "BreakStatement",
-    label: label ? id(labelname) : null
+    label: label ? identifier(labelname) : null
   }
 }
 
-exports.Continue = function (labelname) {
+statements.Continue = function (labelname) {
   return {
     $type: "Continue",
     type: "ContinueStatement",
-    label: label ? id(labelname) : null
+    label: label ? identifier(labelname) : null
   }
 }
 
-exports.With = function (object, body) {
+statements.With = function (object, body) {
   return {
     $type: "With",
     type: "WithStatement",
@@ -132,7 +134,7 @@ exports.With = function (object, body) {
 }
 
 // case ::= {test:MaybeExpression, consequent:[Statements]}
-exports.Switch = function (discriminant, cases) {
+statements.Switch = function (discriminant, cases) {
   for (var i=0; i<cases.length; i++) { cases[i].type = "SwitchCase" }
   return {
     $type: "Switch",
@@ -142,7 +144,7 @@ exports.Switch = function (discriminant, cases) {
   }
 }
 
-exports.Return = function (argument) {
+statements.Return = function (argument) {
   return {
     $type: "Return",
     type: "ReturnStatement",
@@ -150,7 +152,7 @@ exports.Return = function (argument) {
   }
 }
 
-exports.Throw = function (argument) {
+statements.Throw = function (argument) {
   return {
     $type: "Throw",
     type: "ThrowStatement",
@@ -158,7 +160,7 @@ exports.Throw = function (argument) {
   }
 }
 
-exports.Try = function (trystmts, catchparam, catchstmts, finallystmts) {
+statements.Try = function (trystmts, catchparam, catchstmts, finallystmts) {
   return {
     $type: "Try",
     type: "TryStatement",
@@ -169,7 +171,7 @@ exports.Try = function (trystmts, catchparam, catchstmts, finallystmts) {
   }
 }
 
-exports.While = function (test, body) {
+statements.While = function (test, body) {
   return {
     $type: "While",
     type: "WhileStatement",
@@ -178,7 +180,7 @@ exports.While = function (test, body) {
   }
 }
 
-exports.DoWhile = function (test, body) {
+statements.DoWhile = function (test, body) {
   return {
     $type: "DoWhile",
     type: "DoWhileStatement",
@@ -188,10 +190,10 @@ exports.DoWhile = function (test, body) {
 }
 
 // declarator ::= {name:String, init:MaybeExpression}
-exports.DeclarationFor = function (initdeclarators, test, update, body) {
+statements.DeclarationFor = function (initdeclarators, test, update, body) {
   for (var i=0; i<initdeclarators.length; i++) {
     initdeclarators[i].type = "VariableDeclarator"
-    initdeclarators[i].id = id(initdeclarators[i].name)
+    initdeclarators[i].id = identifier(initdeclarators[i].name)
   }
   return {
     $type: "DeclarationFor",
@@ -203,7 +205,7 @@ exports.DeclarationFor = function (initdeclarators, test, update, body) {
   }
 }
 
-exports.For = function (init, test, update, body) {
+statements.For = function (init, test, update, body) {
   return {
     $type: "For",
     type: "ForStatement",
@@ -214,17 +216,17 @@ exports.For = function (init, test, update, body) {
   }
 }
 
-exports.IdentifierForIn = function (leftname, right, body) {
+statements.IdentifierForIn = function (leftname, right, body) {
   return {
     $type: "IdentifierForIn",
     type: "ForInStatement",
-    left: id(name),
+    left: identifier(name),
     right: right,
     body: body
   }
 }
 
-exports.MemberForIn = function (leftobject, leftproperty, right, body) {
+statements.MemberForIn = function (leftobject, leftproperty, right, body) {
   return {
     $type: "MemberForIn",
     type: "ForInStatement",
@@ -234,21 +236,21 @@ exports.MemberForIn = function (leftobject, leftproperty, right, body) {
   }
 }
 
-exports.DeclarationForIn = function (leftname, leftinit, right, body) {
+statements.DeclarationForIn = function (leftname, leftinit, right, body) {
   return {
     $type: "DeclarationForIn",
     type: "ForInStatement",
-    left: declaration([declarator(leftname, leftinit)])
+    left: declaration([declarator(leftname, leftinit)]),
     right: right,
     body: body
   }
 }
 
-exports.Definition = function (idname, paramnames, bodystmts) {
+statements.Definition = function (idname, paramnames, bodystmts) {
   return {
     $type: "Definition",
     type: "FunctionDeclaration",
-    id: id(idname),
+    id: identifier(idname),
     params: paramnames.map(id),
     defaults: [],
     body: block(bodystmts),
@@ -258,33 +260,38 @@ exports.Definition = function (idname, paramnames, bodystmts) {
 }
 
 // declarator ::= {name:String, init:MaybeExpression}
-exports.Declaration = function (declarators) {
+statements.Declaration = function (declarators) {
   for (var i=0; i<declarators.length; i++) {
     declarators[i].type = "VariableDeclarator"
-    declarators[i].id = id(declarators[i].name)
+    if (!declarators[i].init) { declarators[i].init = null }
+    declarators[i].id = identifier(declarators[i].name)
   }
   return {
     $type: "Declaration",
     type: "VariableDeclaration",
-    declarations: declarators)
-    kind: "var"
+    kind: "var",
+    declarations: declarators
   }
 }
+
+exports.statements = statements
 
 ////////////////
 // Expression //
 ////////////////
 
-exports.This = function () {
+var expressions = {}
+
+expressions.This = function () {
   return {
     $type: "This",
     type: "ThisExpression"
   }
 }
 
-exports.Array = function (elements) {
+expressions.Array = function (elements) {
   return {
-    $type: "Array"
+    $type: "Array",
     type: "ArrayExpression",
     elements: elements
   }
@@ -293,11 +300,11 @@ exports.Array = function (elements) {
 // property ::=   {keyname:String, value:Expression}
 //              | {keyname:String, statements:[Statement]}
 //              | {keyname:String, parameter:String, statements:[Statement]}
-exports.Object = function (properties) {
+expressions.Object = function (properties) {
   for (var i=0; i<properties.length; i++) {
     properties[i].type = "Property"
     properties[i].kind = (properties[i].value === undefined) ? (properties[i].parameter?"set":"get") : "init"
-    properties[i].key = (properties[i].keyname === undefined) ? literal(properties[i].keyvalue) : id(properties[i].keyname)
+    properties[i].key = (properties[i].keyname === undefined) ? literal(properties[i].keyvalue) : identifier(properties[i].keyname)
   }
   return {
     $type: "Object",
@@ -306,7 +313,7 @@ exports.Object = function (properties) {
   }
 }
 
-exports.Function = function (paramnames, bodystmts) {
+expressions.Function = function (paramnames, bodystmts) {
   return {
     $type: "Function",
     type: "FunctionExpression",
@@ -319,7 +326,7 @@ exports.Function = function (paramnames, bodystmts) {
   }
 }
 
-exports.Sequence = function (expressions) {
+expressions.Sequence = function (expressions) {
   return {
     $type: "Sequence",
     type: "SequenceExpression",
@@ -327,27 +334,27 @@ exports.Sequence = function (expressions) {
   }
 }
 
-exports.IdentifierTypeof = function (argumentname) {
+expressions.IdentifierTypeof = function (argumentname) {
   return {
     $type: "IdentifierTypeof",
     type: "UnaryExpression",
     operator: "typeof",
     prefix: true,
-    argument: id(argumentname)
+    argument: identifier(argumentname)
   }
 }
 
-exports.IdentifierDelete = function (argumentname) {
+expressions.IdentifierDelete = function (argumentname) {
   return {
     $type: "IdentifierDelete",
     type: "UnaryExpression",
     operator: "delete",
     prefix: true,
-    argument: id(argumentname)
+    argument: identifier(argumentname)
   }
 }
 
-exports.MemberDelete = function (argumentobject, argumentproperty) {
+expressions.MemberDelete = function (argumentobject, argumentproperty) {
   return {
     $type: "IdentifierDelete",
     type: "UnaryExpression",
@@ -357,7 +364,7 @@ exports.MemberDelete = function (argumentobject, argumentproperty) {
   }
 }
 
-exports.Unary = function (operator, argument) {
+expressions.Unary = function (operator, argument) {
   return {
     type: "UnaryExpression",
     operator: operator,
@@ -365,7 +372,7 @@ exports.Unary = function (operator, argument) {
   }
 }
 
-exports.Binary = function (operator, left, right) {
+expressions.Binary = function (operator, left, right) {
   return {
     $type: "Binary",
     type: "BinaryExpression",
@@ -375,17 +382,17 @@ exports.Binary = function (operator, left, right) {
   }
 }
 
-exports.IdentifierAssignment = function (operator, leftname, right) {
+expressions.IdentifierAssignment = function (operator, leftname, right) {
   return {
     $type: "IdentifierAssignment",
     type: "AssignmentExpression",
     operator: operator,
-    left: id(leftname),
+    left: identifier(leftname),
     right: right
   }
 }
 
-exports.MemberAssignment = function (operator, leftobject, leftproperty, right) {
+expressions.MemberAssignment = function (operator, leftobject, leftproperty, right) {
   return {
     $type: "MemberAssignment",
     type: "AssignmentExpression",
@@ -395,23 +402,27 @@ exports.MemberAssignment = function (operator, leftobject, leftproperty, right) 
   }
 }
 
-exports.IdentifierUpdate = function (operator, argumentname) {
+expressions.IdentifierUpdate = function (operator, prefix, argumentname) {
   return {
     $type: "IdentifierUpdate",
     type: "UpdateExpression",
-    argument: id(argumentname)
+    operator: operator,
+    prefix: prefix,
+    argument: identifier(argumentname)
   }
 }
 
-exports.MemberUpdate = function (operator, argumentobject, argumentproperty) {
+expressions.MemberUpdate = function (operator, prefix, argumentobject, argumentproperty) {
   return {
     $type: "MemberUpdate",
     type: "UpdateExpression",
+    operator: operator,
+    prefix: prefix,
     argument: member(argumentobject, argumentproperty)
   }
 }
 
-exports.Logical = function (operator, left, right) {
+expressions.Logical = function (operator, left, right) {
   return {
     $type: "Logical",
     type: "LogicalExpression",
@@ -421,9 +432,9 @@ exports.Logical = function (operator, left, right) {
   }
 }
 
-exports.Conditional = function (test, consequent, alternate) {
+expressions.Conditional = function (test, consequent, alternate) {
   return {
-    $type: "Conditional"
+    $type: "Conditional",
     type: "ConditionalExpression",
     test: test,
     consequent: consequent,
@@ -431,7 +442,7 @@ exports.Conditional = function (test, consequent, alternate) {
   }
 }
 
-exports.New = function (callee, args) {
+expressions.New = function (callee, args) {
   return {
     $type: "New",
     type: "NewExpression",
@@ -440,7 +451,7 @@ exports.New = function (callee, args) {
   }
 }
 
-exports.MemberCall = function (calleeobject, calleeproperty, arguments) {
+expressions.MemberCall = function (calleeobject, calleeproperty, arguments) {
   return {
     $type: "MemberCall",
     type: "CallExpression",
@@ -449,16 +460,16 @@ exports.MemberCall = function (calleeobject, calleeproperty, arguments) {
   }
 }
 
-exports.EvalCall = function (arguments) {
+expressions.EvalCall = function (arguments) {
   return {
     $type: "EvalCall",
     type: "CallExpression",
-    callee: id("eval"),
+    callee: identifier("eval"),
     arguments: arguments
   }
 }
 
-exports.Call = function (callee, arguments) {
+expressions.Call = function (callee, arguments) {
   return {
     $type: "Call",
     type: "CallExpression",
@@ -467,18 +478,18 @@ exports.Call = function (callee, arguments) {
   }
 }
 
-exports.Member = function (object, property) {
+expressions.Member = function (object, property) {
   computed = typeof property !== "string"
   return {
     $type: "Member",
     type: "MemberExpression",
     computed: computed,
     object: object,
-    property: computed ? property : id(property)
+    property: computed ? property : identifier(property)
   }
 }
 
-exports.Identifier = function (name) {
+expressions.Identifier = function (name) {
   return {
     $type: "Identifier",
     type: "Identifier",
@@ -486,10 +497,13 @@ exports.Identifier = function (name) {
   }
 }
 
-exports.Literal = function (value) {
+expressions.Literal = function (value) {
   return {
-    $type: "Literal"
+    $type: "Literal",
     type: "Literal",
     value: value
   }
 }
+
+exports.expressions = expressions
+

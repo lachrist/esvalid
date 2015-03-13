@@ -1,20 +1,30 @@
 
 var Type = require("./type.js")
 
-module.exports = function (svisit, evisit) {
-  var type, node, nodes = []
-  function push (node) { nodes.push(node) }
-  function pushmaybe (maybenode) { if (maybenode) { node.push(maybenode) } }
-  return function (x) {
-    if (typeof x === "function") { return push(x) }
-    if (x.type === "Program") { for (var i=x.body.length; i>0; i--) { push(x.body[i-1]) } }
-    else { push(x) }
-    while (node = nodes.pop()) {
-      if (typeof node === "function") { node() }
-      else if (!node.$halt) {
-        node.$type = Type(node)
-        if (stmts[node.$type]) { (svisit(node), stmts[node.$type](node, push, pushmaybe)) }
-        if (exprs[node.$type]) { (evisit(node), exprs[node.$type](node, push, pushmaybe)) }
+var type, node, workerlist = []
+function push (node) { workerlist.push(node) }
+function pushmaybe (maybenode) { if (maybenode) { workerlist.push(maybenode) } }
+function insert (newnode, oldnode) {
+  if (newnode) {
+    var keys = Object.keys(newnode)
+    var length = keys.length
+    for (var i = 0; i<length; i++) { oldnode[keys[i]] = newnode[keys[i]] }
+  }
+}
+
+module.exports = function (ast, onstmt, onexpr) {
+  nodes(ast.body, push)
+  while (node = workerlist.pop()) {
+    if (typeof node === "function") { node() }
+    else if (!node.$halt) {
+      if (!node.$type) { type = (node.$type = Type(node)) }
+      if (stmts[type]) {
+        stmts[type](node, push, pushmaybe)
+        if (!node.$ignore) { insert(onstmt(type, node, push), node) }
+      }
+      if (exprs[type]) {
+        exprs[type](node, push, pushmaybe)
+        if (!node.$ignore) { insert(onexpr(type, node, push), node) }
       }
     }
   }
@@ -24,6 +34,7 @@ module.exports = function (svisit, evisit) {
 // Helpers //
 /////////////
 
+function nil () {}
 function member (m, e) { e(m.object); if (m.computed) e(m.property); }
 function declarators (ds, pushmaybe) { for (var i=ds.length-1; i>=0; i--) { pushmaybe(ds[i].init) } }
 function nodes (nodes, push) { for (var i=nodes.length-1; i>=0; i--) { push(nodes[i]) } }
@@ -33,14 +44,14 @@ function nodes (nodes, push) { for (var i=nodes.length-1; i>=0; i--) { push(node
 ////////////////
 
 var stmts = {
-  Empty: Util.nil,
-  Strict: Util.nil,
+  Empty: nil,
+  Strict: nil,
   Block: function (n, p, pm) { nodes(n.body, p) },
   Expression: function (n, p, pm) { p(n.expression) },
   If: function (n, p, pm) { (pm(n.alternate), p(n.consequent), p(n.test)) },
   Label: function (n, p, pm) { p(n.body) },
-  Break: Util.nil,
-  Continue: Util.nil,
+  Break: nil,
+  Continue: nil,
   With: function (n, p, pm) { (p(n.body), p(n.object)) },
   Switch: function (n, p, pm) {
     for (var i=cases.length-1; i>=0; i--) { pm(n.cases[i].test); nodes(n.cases[i].consequent, p) }
@@ -60,7 +71,7 @@ var stmts = {
   IdentifierForIn: function (n, p, pm) { (p(n.body), p(n.right)) },
   MemberForIn: function (n, p, pm) { (p(n.body), p(n.right), member(n.left)) },
   DeclarationForIn: function (n, p, pm) { (p(n.body), p(n.right), pm(n.left.declarations[0].init)) },
-  Definition: function (n, p, pm) { nodes(n.body.body, p) }
+  Definition: function (n, p, pm) { nodes(n.body.body, p) },
   Declaration: function (n, p, pm) { declarators(n.declarations, pm) }
 }
 
@@ -69,7 +80,7 @@ var stmts = {
 /////////////////
 
 var exprs = {
-  This: Util.nil,
+  This: nil,
   Array: function (n, p, pm) { nodes(n.elements, pm) },
   Object: function (n, p, pm) {
     for (var i=n.properties.length-1; i>=0; i--) {
@@ -79,14 +90,14 @@ var exprs = {
   },
   Function: function (n, p, pm) { nodes(n.body.body, p) },
   Sequence: function (n, p, pm) { nodes(n.expressions, p) },
-  IdentifierTypeof: Util.nil,
-  IdentifierDelete: Util.nil,
+  IdentifierTypeof: nil,
+  IdentifierDelete: nil,
   MemberDelete: function (n, p, pm) { member(n.argument, p) },
   Unary: function (n, p, pm) { p(n.argument) },
   Binary: function (n, p, pm) { (p(n.right), p(n.left)) },
   IdentifierAssignment: function (n, p, pm) { p(n.right) },
   MemberAssignment: function (n, p, pm) { (p(n.right), member(n, p)) },
-  IdentifierUpdate: Util.nil,
+  IdentifierUpdate: nil,
   MemberUpdate: function (n, p, pm) { member(n.argument) },
   Logical: function (n, p, pm) { (p(n.right), p(n.left)) },
   Conditional: function (n, p, pm) { (p(n.alternate), p(n.consequent), p(n.test)) },
@@ -95,6 +106,6 @@ var exprs = {
   EvalCall: function (n, p, pm) { nodes(n.arguments, p) },
   Call: function (n, p, pm) { (nodes(n.arguments, p), p(n.callee)) },
   Member: function (n, p, pm) { member(n, p) },
-  Identifier: Util.nil,
-  Literal: Util.nil
+  Identifier: nil,
+  Literal: nil
 }

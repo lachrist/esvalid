@@ -1,11 +1,20 @@
 
-var Infos = require("./infos.js")
 var Visit = require("./visit.js")
-var Type = require("./type.js")
+var Extract = require("./extract.js")
+var Build = require("./build.js")
 
-exports.Prepare = Visit
-exports.ExtractInformation = Infos.node
-exports.ExtractExpressionInformation = Infos.expression
-exports.ExtractStatementInformation = Infos.statement
-exports.ConstructExpression = Builder.expression
-exports.ConstructStatement = Builder.statement
+exports.Visit = Visit
+exports.ExtractExpression = Extract.expression
+exports.ExtractStatement = Extract.statement
+exports.BuildExpression = Build.expressions
+exports.BuildStatement = Build.statements
+
+exports.Halt = function (node) {
+  node.$halt = true
+  return node 
+}
+
+exports.Ignore = function (node) {
+  node.$ignore = true
+  return node
+}

@@ -19,7 +19,7 @@ var types = {
   ExpressionStatement:  function (n) { return (n.expression.value === "use strict" ? "Strict" : "Expression") },
   ForStatement:         function (n) { return (n.init.type==="VariableDeclaration" ? "Declaration" : "") + "For" },
   ForInStatement:       function (n) { return (n.left.type === "VariableDeclaration" ? "Declaration" : left(n.left)) + "For" },
-  CallExpression:       function (n) { return (n.callee.name === "eval" ? "Eval" : (n.callee.type === "Member" ? "Member" : "")) + "Call" }
+  CallExpression:       function (n) { return (n.callee.name === "eval" ? "Eval" : (n.callee.type === "Member" ? "Member" : "")) + "Call" },
   UnaryExpression:      function (n) {
     if (n.operator === "typeof" && n.argument.type === "Identifier") { return "IdentifierTypeof" }
     if (n.operator === "delete" && n.argument.type === "Identifier") { return "IdentifierDelete" }

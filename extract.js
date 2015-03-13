@@ -9,9 +9,16 @@ exports.expression = function (expr) { return exprs[expr.$type](expr) }
 function empty () { return [] }
 function member (m) { return m.computed?null:m.property.name }
 function identifier (i) { return i?i.name:null }
-function declaration (d) { return [d.id.name, Boolean(d.init)] }
+function declarator (d) { return [d.id.name, Boolean(d.init)] }
 function switchcase (c) { return [Boolean(c.test), c.consequent.length] }
-function property (p) { return [p.key.type==="Literal"?p.key.value:p.key.name, p.kind, p.kind==="init"?null:p.value.body.length] }
+function property (p) {
+  return [
+    p.key.type==="Literal" ? p.key.value : p.key.name,
+    p.kind,
+    p.kind==="set" ? p.value.params[0].name : null,
+    p.kind==="init" ? null : p.value.body.length
+  ]
+}
 
 ////////////////
 // Statements //
@@ -34,13 +41,13 @@ stmts.Throw            = empty
 stmts.Try              = function (n) { return [n.block.length, n.handler?identifier(n.handler.param):null, n.handler?n.handler.body.body.length:null, n.finalizer?n.finalizer.body.length:null] }
 stmts.While            = empty
 stmts.DoWhile          = empty
-stmts.DeclarationFor   = function (n) { return [n.init.declarations.map(declaration), Boolean(n.test), Boolean(n.update)] }
+stmts.DeclarationFor   = function (n) { return [n.init.declarations.map(declarator), Boolean(n.test), Boolean(n.update)] }
 stmts.For              = function (n) { return [Boolean(n.init), Boolean(n.test), Boolean(n.update)] }
 stmts.IdentifierForIn  = function (n) { return [identifier(n.left)] }
 stmts.MemberForIn      = function (n) { return [member(n.left)] }
-stmts.DeclarationForIn = function (n) { return declaration(n.left.declarations[0]) }
+stmts.DeclarationForIn = function (n) { return declarator(n.left.declarations[0]) }
 stmts.Definition       = function (n) { return [identifier(n.id), n.params.map(identifier), n.body.body.length] }
-stmts.Declaration      = function (n) { return [n.declarations.map(declaration)] }
+stmts.Declaration      = function (n) { return [n.declarations.map(declarator)] }
 
 /////////////////
 // Expressions //
