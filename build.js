@@ -3,7 +3,7 @@
 // Helpers //
 /////////////
 
-function id (name) { return { type: "Identifier", name: name } }
+function identifier (name) { return { type: "Identifier", name: name } }
 
 function block (stmts) { return { type: "BlockStatement", body: stmts } }
 
@@ -14,14 +14,6 @@ function member (object, property) {
     object: object,
     computed: computed,
     property: computed ? property : identifier(property)
-  }
-}
-
-function catchclause (param, stmts) {
-  return {
-    type:"CatchClause",
-    param: identifier(param),
-    body: block(stmts)
   }
 }
 
@@ -133,9 +125,7 @@ statements.With = function (object, body) {
   }
 }
 
-// case ::= {test:MaybeExpression, consequent:[Statements]}
 statements.Switch = function (discriminant, cases) {
-  for (var i=0; i<cases.length; i++) { cases[i].type = "SwitchCase" }
   return {
     $type: "Switch",
     discriminant: discriminant,
@@ -166,7 +156,7 @@ statements.Try = function (trystmts, catchparam, catchstmts, finallystmts) {
     type: "TryStatement",
     block: block(trystmts),
     guardedHandlers: [],
-    handlers: catchparam ? [catchclause(catchparam, catchstmts)] : [],
+    handlers: catchparam ? [{type:"CatchClause", param:identifier(catchparam), guard:null, body:block(catchstmts)}] : [],
     finalizer: finallystmts ? block(finallystmts) : null
   }
 }
@@ -189,12 +179,7 @@ statements.DoWhile = function (test, body) {
   }
 }
 
-// declarator ::= {name:String, init:MaybeExpression}
 statements.DeclarationFor = function (initdeclarators, test, update, body) {
-  for (var i=0; i<initdeclarators.length; i++) {
-    initdeclarators[i].type = "VariableDeclarator"
-    initdeclarators[i].id = identifier(initdeclarators[i].name)
-  }
   return {
     $type: "DeclarationFor",
     type: "ForStatement",
@@ -259,13 +244,7 @@ statements.Definition = function (idname, paramnames, bodystmts) {
   }
 }
 
-// declarator ::= {name:String, init:MaybeExpression}
 statements.Declaration = function (declarators) {
-  for (var i=0; i<declarators.length; i++) {
-    declarators[i].type = "VariableDeclarator"
-    if (!declarators[i].init) { declarators[i].init = null }
-    declarators[i].id = identifier(declarators[i].name)
-  }
   return {
     $type: "Declaration",
     type: "VariableDeclaration",
@@ -297,15 +276,7 @@ expressions.Array = function (elements) {
   }
 }
 
-// property ::=   {keyname:String, value:Expression}
-//              | {keyname:String, statements:[Statement]}
-//              | {keyname:String, parameter:String, statements:[Statement]}
 expressions.Object = function (properties) {
-  for (var i=0; i<properties.length; i++) {
-    properties[i].type = "Property"
-    properties[i].kind = (properties[i].value === undefined) ? (properties[i].parameter?"set":"get") : "init"
-    properties[i].key = (properties[i].keyname === undefined) ? literal(properties[i].keyvalue) : identifier(properties[i].keyname)
-  }
   return {
     $type: "Object",
     type: "ObjectExpression",
@@ -507,3 +478,56 @@ expressions.Literal = function (value) {
 
 exports.expressions = expressions
 
+/////////////////////////
+// Additional Builders //
+/////////////////////////
+
+exports.Program = function (bodystmts) {
+  return {
+    type: "Program",
+    body: bodystmts
+  }
+}
+
+exports.Declarator = function (name, init) {
+  return {
+    type: "VariableDeclarator",
+    id: identifier(name),
+    init: init
+  }
+}
+
+exports.InitProperty = function (keyvalue, value) {
+  return {
+    type: "Property",
+    kind: "init",
+    key: literal(keyvalue),
+    value: value
+  }
+}
+
+exports.GetProperty = function (keyvalue, bodystmts) {
+  return {
+    type: "Property",
+    kind: "get",
+    key: literal(keyvalue),
+    value: { type: "Function", params: [], body: block(bodystmts) }
+  }
+}
+
+exports.SetProperty = function (keyvalue, paramname, bodystmts) {
+  return {
+    type: "Property",
+    kind: "set",
+    key: literal(keyvalue),
+    value: { type: "Function", params: [identifier(paramname)], body: block(bodystmts) }
+  }
+}
+
+exports.SwitchCase = function (test, consequent) {
+  return {
+    type: "SwitchCase",
+    test: test,
+    consequent: consequent
+  }
+}

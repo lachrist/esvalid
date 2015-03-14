@@ -27,7 +27,7 @@ function property (p) {
 stmts = {}
 
 stmts.Empty            = empty
-stmts.UseStrict        = empty
+stmts.Strict        = empty
 stmts.Block            = function (n) { return [n.body.length] }
 stmts.Expression       = empty
 stmts.If               = function (n) { return [Boolean(n.alternate)] }

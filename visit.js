@@ -1,33 +1,40 @@
 
 var Type = require("./type.js")
 
-var type, node, workerlist = []
-function push (node) { workerlist.push(node) }
-function pushmaybe (maybenode) { if (maybenode) { workerlist.push(maybenode) } }
-function insert (newnode, oldnode) {
-  if (newnode) {
-    var keys = Object.keys(newnode)
-    var length = keys.length
-    for (var i = 0; i<length; i++) { oldnode[keys[i]] = newnode[keys[i]] }
-  }
-}
+module.exports = function () {
 
-module.exports = function (ast, onstmt, onexpr) {
-  nodes(ast.body, push)
-  while (node = workerlist.pop()) {
-    if (typeof node === "function") { node() }
-    else if (!node.$halt) {
-      if (!node.$type) { type = (node.$type = Type(node)) }
-      if (stmts[type]) {
-        stmts[type](node, push, pushmaybe)
-        if (!node.$ignore) { insert(onstmt(type, node, push), node) }
-      }
-      if (exprs[type]) {
-        exprs[type](node, push, pushmaybe)
-        if (!node.$ignore) { insert(onexpr(type, node, push), node) }
+  var type, node, workerlist = []
+
+  function push (node) { workerlist.push(node) }
+  function pushmaybe (maybenode) { if (maybenode) { workerlist.push(maybenode) } }
+  function insert (newnode, oldnode) {
+    if (newnode) {
+      var keys = Object.keys(newnode)
+      var length = keys.length
+      for (var i = 0; i<length; i++) { oldnode[keys[i]] = newnode[keys[i]] }
+    }
+  }
+
+  function visit (ast, onstmt, onexpr) {
+    nodes(ast.body, push)
+    while (node = workerlist.pop()) {
+      if (typeof node === "function") { node() }
+      else if (!node.$halt) {
+        if (!node.$type) { type = (node.$type = Type(node)) }
+        if (stmts[type]) {
+          stmts[type](node, push, pushmaybe)
+          if (!node.$ignore) { insert(onstmt(type, node), node) }
+        }
+        if (exprs[type]) {
+          exprs[type](node, push, pushmaybe)
+          if (!node.$ignore) { insert(onexpr(type, node), node) }
+        }
       }
     }
   }
+
+  return {visit:visit, mark:push}
+
 }
 
 /////////////
@@ -54,7 +61,7 @@ var stmts = {
   Continue: nil,
   With: function (n, p, pm) { (p(n.body), p(n.object)) },
   Switch: function (n, p, pm) {
-    for (var i=cases.length-1; i>=0; i--) { pm(n.cases[i].test); nodes(n.cases[i].consequent, p) }
+    for (var i=n.cases.length-1; i>=0; i--) { pm(n.cases[i].test); nodes(n.cases[i].consequent, p) }
     p(n.discriminant)
   },
   Return: function (n, p, pm) { pm(n.argument) },
@@ -69,7 +76,7 @@ var stmts = {
   DeclarationFor: function (n, p, pm) { (p(n.body), pm(n.update), pm(n.test), declarators(n.init.declarations, pm)) },
   For: function (n, p, pm) { (p(n.body), pm(n.update), pm(n.test), pm(n.init)) },
   IdentifierForIn: function (n, p, pm) { (p(n.body), p(n.right)) },
-  MemberForIn: function (n, p, pm) { (p(n.body), p(n.right), member(n.left)) },
+  MemberForIn: function (n, p, pm) { (p(n.body), p(n.right), member(n.left, p)) },
   DeclarationForIn: function (n, p, pm) { (p(n.body), p(n.right), pm(n.left.declarations[0].init)) },
   Definition: function (n, p, pm) { nodes(n.body.body, p) },
   Declaration: function (n, p, pm) { declarators(n.declarations, pm) }
@@ -98,7 +105,7 @@ var exprs = {
   IdentifierAssignment: function (n, p, pm) { p(n.right) },
   MemberAssignment: function (n, p, pm) { (p(n.right), member(n, p)) },
   IdentifierUpdate: nil,
-  MemberUpdate: function (n, p, pm) { member(n.argument) },
+  MemberUpdate: function (n, p, pm) { member(n.argument, p) },
   Logical: function (n, p, pm) { (p(n.right), p(n.left)) },
   Conditional: function (n, p, pm) { (p(n.alternate), p(n.consequent), p(n.test)) },
   New: function (n, p, pm) { (nodes(n.arguments, p), p(n.callee)) },
