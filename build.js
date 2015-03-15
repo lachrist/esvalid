@@ -493,7 +493,7 @@ exports.Declarator = function (name, init) {
   return {
     type: "VariableDeclarator",
     id: identifier(name),
-    init: init
+    init: init || null
   }
 }
 
