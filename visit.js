@@ -20,7 +20,7 @@ module.exports = function () {
     while (node = workerlist.pop()) {
       if (typeof node === "function") { node() }
       else if (!node.$halt) {
-        if (!node.$type) { type = (node.$type = Type(node)) }
+        type = node.$type || (node.$type=Type(node))
         if (stmts[type]) {
           stmts[type](node, push, pushmaybe)
           if (!node.$ignore) { insert(onstmt(type, node), node) }
