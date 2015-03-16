@@ -205,7 +205,7 @@ statements.IdentifierForIn = function (leftname, right, body) {
   return {
     $type: "IdentifierForIn",
     type: "ForInStatement",
-    left: identifier(name),
+    left: identifier(leftname),
     right: right,
     body: body
   }
@@ -236,7 +236,7 @@ statements.Definition = function (idname, paramnames, bodystmts) {
     $type: "Definition",
     type: "FunctionDeclaration",
     id: identifier(idname),
-    params: paramnames.map(id),
+    params: paramnames.map(identifier),
     defaults: [],
     body: block(bodystmts),
     generator: false,
@@ -289,7 +289,7 @@ expressions.Function = function (paramnames, bodystmts) {
     $type: "Function",
     type: "FunctionExpression",
     id: null,
-    params: paramnames.map(id),
+    params: paramnames.map(identifier),
     defaults: [],
     body: block(bodystmts),
     generator: false,

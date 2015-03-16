@@ -17,7 +17,7 @@ exports.BuildExpression = Build.expressions
 exports.BuildProgram = Build.Program
 exports.BuildSwitchCase = Build.SwitchCase
 exports.BuildDeclarator = Build.Declarator
-exports.BuildInitProperty = Build.DataProperty
+exports.BuildInitProperty = Build.InitProperty
 exports.BuildGetProperty = Build.GetProperty
 exports.BuildSetProperty = Build.SetProperty
 
