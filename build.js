@@ -104,7 +104,7 @@ statements.Break = function (labelname) {
   return {
     $type: "Break",
     type: "BreakStatement",
-    label: label ? identifier(labelname) : null
+    label: labelname ? identifier(labelname) : null
   }
 }
 
@@ -444,7 +444,7 @@ expressions.Call = function (callee, arguments) {
   return {
     $type: "Call",
     type: "CallExpression",
-    callee: member(calleeobject, calleeproperty),
+    callee: callee,
     arguments: arguments
   }
 }

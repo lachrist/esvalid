@@ -27,11 +27,11 @@ function property (p) {
 stmts = {}
 
 stmts.Empty            = empty
-stmts.Strict        = empty
+stmts.Strict           = empty
 stmts.Block            = function (n) { return [n.body.length] }
 stmts.Expression       = empty
 stmts.If               = function (n) { return [Boolean(n.alternate)] }
-stmts.Labeled          = empty
+stmts.Label            = empty
 stmts.Break            = function (n) { return [identifier(n.label)] }
 stmts.Continue         = function (n) { return [identifier(n.label)] }
 stmts.With             = empty
