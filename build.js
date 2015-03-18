@@ -284,11 +284,11 @@ expressions.Object = function (properties) {
   }
 }
 
-expressions.Function = function (paramnames, bodystmts) {
+expressions.Function = function (idname, paramnames, bodystmts) {
   return {
     $type: "Function",
     type: "FunctionExpression",
-    id: null,
+    id: idname ? identifier(idname) : null,
     params: paramnames.map(identifier),
     defaults: [],
     generator: false,
@@ -297,7 +297,7 @@ expressions.Function = function (paramnames, bodystmts) {
   }
 }
 
-expressions.HoistedFunction = function (paramnames, variables, bodystmts) {
+expressions.HoistedFunction = function (idname, paramnames, variables, bodystmts) {
   var seen = {}
   paramnames.forEach(function (name) { seen[name] = true })
   variables = variables.filter(function (name) { return seen[name] ? false : (seen[name]=true) })
@@ -308,7 +308,7 @@ expressions.HoistedFunction = function (paramnames, variables, bodystmts) {
   return {
     $type: "HoistedFunction",
     type: "FunctionExpression",
-    id: null,
+    id: idname ? identifier(idname) : null,
     params: paramnames.map(identifier),
     defaults: [],
     generator: false,
