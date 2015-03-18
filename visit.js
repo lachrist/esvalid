@@ -102,6 +102,7 @@ var exprs = {
     }
   },
   Function: function (n, p, pm) { nodes(n.body.body, p) },
+  HoistedFunction: function (n, p, pm) { for (var i=1; i<n.body.body.length; i++) { p(n.body.body[i]) } },
   Sequence: function (n, p, pm) { nodes(n.expressions, p) },
   IdentifierTypeof: nil,
   IdentifierDelete: nil,

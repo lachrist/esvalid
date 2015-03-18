@@ -291,9 +291,29 @@ expressions.Function = function (paramnames, bodystmts) {
     id: null,
     params: paramnames.map(identifier),
     defaults: [],
-    body: block(bodystmts),
     generator: false,
-    expression: false
+    expression: false,
+    body: block(bodystmts),
+  }
+}
+
+expressions.HoistedFunction = function (paramnames, variables, bodystmts) {
+  var seen = {}
+  paramnames.forEach(function (name) { seen[name] = true })
+  variables = variables.filter(function (name) { return seen[name] ? false : (seen[name]=true) })
+  var declarators = variables.map(function (name) { return { type:"VariableDeclarator", id:identifier(name), init:null} })
+  bodystmts.unshift(declarators.length
+    ? {type:"VariableDeclaration", kind:"var", declarations:declarators}
+    : {type:"EmptyStatement"})
+  return {
+    $type: "HoistedFunction",
+    type: "FunctionExpression",
+    id: null,
+    params: paramnames.map(identifier),
+    defaults: [],
+    generator: false,
+    expression: false,
+    body: block(bodystmts)
   }
 }
 
@@ -337,6 +357,7 @@ expressions.MemberDelete = function (argumentobject, argumentproperty) {
 
 expressions.Unary = function (operator, argument) {
   return {
+    $type: "Unary",
     type: "UnaryExpression",
     operator: operator,
     argument: argument
