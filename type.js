@@ -18,7 +18,7 @@ var types = {
   AssignmentExpression: function (n) { return left(n.left)+"Assignment" },
   UpdateExpression:     function (n) { return left(n.argument)+"Update" },
   ExpressionStatement:  function (n) { return (n.expression.value === "use strict" ? "Strict" : "Expression") },
-  ForStatement:         function (n) { return (n.init.type==="VariableDeclaration" ? "Declaration" : "") + "For" },
+  ForStatement:         function (n) { return (n.init&&n.init.type==="VariableDeclaration") ? "DeclarationFor" : "For" },
   ForInStatement:       function (n) { return (n.left.type === "VariableDeclaration" ? "Declaration" : left(n.left)) + "ForIn" },
   CallExpression:       function (n) { return (n.callee.name === "eval" ? "Eval" : (n.callee.type === "MemberExpression" ? "Member" : "")) + "Call" },
   UnaryExpression:      function (n) {
