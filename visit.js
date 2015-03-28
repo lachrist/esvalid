@@ -134,15 +134,19 @@ module.exports = function () {
   // Expressions //
   /////////////////
 
+    // Object: function (n) {
+    //   for (var i=0; i<n.properties.length; i++) {
+    //     if (n.properties[i].kind === "init") { childs.push(n.properties[i].value) }
+    //     else { nodes(n.properties[i].value.body.body) }
+    //   }
+    // },
+
+
+
   var exprs = {
     This: nil,
     Array: function (n) { nodes(n.elements) },
-    Object: function (n) {
-      for (var i=0; i<n.properties.length; i++) {
-        if (n.properties[i].kind === "init") { childs.push(n.properties[i].value) }
-        else { nodes(n.properties[i].value.body.body) }
-      }
-    },
+    Object: function (n) { for (var i=0; i<n.properties.length; i++) { childs.push(n.properties[i].value) } },
     Function: function (n) { nodes(n.body.body) },
     HoistedFunction: function (n) { for (var i=1; i<n.body.body.length; i++) { childs.push(n.body.body[i]) } },
     Sequence: function (n) { nodes(n.expressions) },
