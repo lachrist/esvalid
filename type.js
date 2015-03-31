@@ -15,12 +15,20 @@ var types = {
   Literal:              function (n) { return "Literal" },
   FunctionDeclaration:  function (n) { return "Definition" },
   VariableDeclaration:  function (n) { return "Declaration" },
-  AssignmentExpression: function (n) { return left(n.left)+"Assignment" },
+  AssignmentExpression: function (n) { return left(n.left)+(n.operator==="="?"":"Binary")+"Assignment" },
   UpdateExpression:     function (n) { return left(n.argument)+"Update" },
   ExpressionStatement:  function (n) { return (n.expression.value === "use strict" ? "Strict" : "Expression") },
   ForStatement:         function (n) { return (n.init&&n.init.type==="VariableDeclaration") ? "DeclarationFor" : "For" },
   ForInStatement:       function (n) { return (n.left.type === "VariableDeclaration" ? "Declaration" : left(n.left)) + "ForIn" },
   CallExpression:       function (n) { return (n.callee.name === "eval" ? "Eval" : (n.callee.type === "MemberExpression" ? "Member" : "")) + "Call" },
+  ObjectExpression:     function (n) {
+    for (var i=0; i<n.properties.length; i++) {
+      if (n.properties[i].kind !== "init") {
+        return "AccessorObject"
+      }
+    }
+    return "DataObject"
+  },
   UnaryExpression:      function (n) {
     if (n.operator === "typeof" && n.argument.type === "Identifier") { return "IdentifierTypeof" }
     if (n.operator === "delete" && n.argument.type === "Identifier") { return "IdentifierDelete" }

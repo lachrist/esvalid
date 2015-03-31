@@ -86,7 +86,7 @@ statements.If = function (test, consequent, alternate) {
     type: "IfStatement",
     test: test,
     consequent: consequent,
-    alternate: alternate
+    alternate: alternate || null
   }
 }
 
@@ -138,7 +138,7 @@ statements.Return = function (argument) {
   return {
     $type: "Return",
     type: "ReturnStatement",
-    argument: argument
+    argument: argument || null
   }
 }
 
@@ -184,8 +184,8 @@ statements.DeclarationFor = function (initdeclarators, test, update, body) {
     $type: "DeclarationFor",
     type: "ForStatement",
     init: declaration(initdeclarators),
-    test: test,
-    update: update,
+    test: test || null,
+    update: update || null,
     body: body
   }
 }
@@ -194,9 +194,9 @@ statements.For = function (init, test, update, body) {
   return {
     $type: "For",
     type: "ForStatement",
-    init: init,
-    test: test,
-    update: update,
+    init: init || null,
+    test: test || null ,
+    update: update || null,
     body: body
   }
 }
@@ -272,15 +272,23 @@ expressions.Array = function (elements) {
   return {
     $type: "Array",
     type: "ArrayExpression",
-    elements: elements
+    elements: elements.map(function (e) { return e || null })
   }
 }
 
-expressions.Object = function (properties) {
+expressions.AccessorObject = function (properties) {
   return {
-    $type: "Object",
+    $type: "AccessorObject",
     type: "ObjectExpression",
     properties: properties
+  }
+}
+
+expressions.DataObject = function (initproperties) {
+  return {
+    $type: "DataObject",
+    type: "ObjectExpression",
+    properties: initproperties
   }
 }
 
@@ -374,9 +382,19 @@ expressions.Binary = function (operator, left, right) {
   }
 }
 
-expressions.IdentifierAssignment = function (operator, leftname, right) {
+expressions.IdentifierAssignment = function (leftname, right) {
   return {
     $type: "IdentifierAssignment",
+    type: "AssignmentExpression",
+    operator: "=",
+    left: identifier(leftname),
+    right: right
+  }
+}
+
+expressions.IdentifierBinaryAssignment = function (operator, leftname, right) {
+  return {
+    $type: "IdentifierBinaryAssignment",
     type: "AssignmentExpression",
     operator: operator,
     left: identifier(leftname),
@@ -384,9 +402,19 @@ expressions.IdentifierAssignment = function (operator, leftname, right) {
   }
 }
 
-expressions.MemberAssignment = function (operator, leftobject, leftproperty, right) {
+expressions.MemberAssignment = function (leftobject, leftproperty, right) {
   return {
     $type: "MemberAssignment",
+    type: "AssignmentExpression",
+    operator: "=",
+    left: member(leftobject, leftproperty),
+    right: right
+  }
+}
+
+expressions.MemberBinaryAssignment = function (operator, leftobject, leftproperty, right) {
+  return {
+    $type: "MemberBinaryAssignment",
     type: "AssignmentExpression",
     operator: operator,
     left: member(leftobject, leftproperty),
@@ -514,7 +542,7 @@ exports.Declarator = function (name, init) {
   return {
     type: "VariableDeclarator",
     id: identifier(name),
-    init: init
+    init: init || null
   }
 }
 
@@ -548,7 +576,7 @@ exports.SetProperty = function (keyvalue, paramname, bodystmts) {
 exports.SwitchCase = function (test, consequent) {
   return {
     type: "SwitchCase",
-    test: test,
+    test: test||null,
     consequent: consequent
   }
 }

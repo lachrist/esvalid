@@ -24,10 +24,10 @@ module.exports = function () {
       else if (!node.$halt) {
         type = node.$type || (node.$type=Type(node))
         if (stmts[type]) {
-          stmts[type](node, push, pushmaybe)
+          stmts[type](node)
           if (!node.$ignore) { insert(onstmt(type, node), node) }
         } else if (exprs[type]) {
-          exprs[type](node, push, pushmaybe)
+          exprs[type](node)
           if (!node.$ignore) { insert(onexpr(type, node), node) }
         } else {
           throw new Error ("Unknown node type: "+type)
@@ -134,19 +134,16 @@ module.exports = function () {
   // Expressions //
   /////////////////
 
-    // Object: function (n) {
-    //   for (var i=0; i<n.properties.length; i++) {
-    //     if (n.properties[i].kind === "init") { childs.push(n.properties[i].value) }
-    //     else { nodes(n.properties[i].value.body.body) }
-    //   }
-    // },
-
-
-
   var exprs = {
     This: nil,
     Array: function (n) { nodes(n.elements) },
-    Object: function (n) { for (var i=0; i<n.properties.length; i++) { childs.push(n.properties[i].value) } },
+    DataObject: function (n) { for (var i=0; i<n.properties.length; i++) { childs.push(n.properties[i].value) } },
+    AccessorObject: function (n) {
+      for (var i=0; i<n.properties.length; i++) {
+        if (n.properties[i].kind === "init") { childs.push(n.properties[i].value) }
+        else { nodes(n.properties[i].value.body.body) }
+      }
+    },
     Function: function (n) { nodes(n.body.body) },
     HoistedFunction: function (n) { for (var i=1; i<n.body.body.length; i++) { childs.push(n.body.body[i]) } },
     Sequence: function (n) { nodes(n.expressions) },
@@ -159,7 +156,12 @@ module.exports = function () {
       childs.push(n.right)
     },
     IdentifierAssignment: function (n) { childs.push(n.right) },
+    IdentifierBinaryAssignment: function (n) { childs.push(n.right) },
     MemberAssignment: function (n) {
+      member(n)
+      childs.push(n.right)
+    },
+    MemberBinaryAssignment: function (n) {
       member(n)
       childs.push(n.right)
     },
