@@ -1,6 +1,6 @@
 { "name" : "esvisit"
-, "version" : "0.0.6"
-, "files" : ["build.js", "extract.js", "main.js", "visit.js", "type.js"]
+, "version" : "0.1.0"
+, "files" : ["build.js", "main.js", "scope.js", "type.js", "view.js", "visit.js"]
 , "main": "main.js"
 , "description" : "Expression/Statement visitor for ECMAScript5 Mozilla ASTs"
 , "keywords" : ["JavaScript", "Visitor", "ECMAScript5", "Statement", "Expression"]
