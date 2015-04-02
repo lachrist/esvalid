@@ -158,11 +158,11 @@ module.exports = function () {
     IdentifierAssignment: function (n) { childs.push(n.right) },
     IdentifierBinaryAssignment: function (n) { childs.push(n.right) },
     MemberAssignment: function (n) {
-      member(n)
+      member(n.left)
       childs.push(n.right)
     },
     MemberBinaryAssignment: function (n) {
-      member(n)
+      member(n.left)
       childs.push(n.right)
     },
     IdentifierUpdate: nil,
