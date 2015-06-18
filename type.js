@@ -21,14 +21,6 @@ var types = {
   ForStatement:         function (n) { return (n.init&&n.init.type==="VariableDeclaration") ? "DeclarationFor" : "For" },
   ForInStatement:       function (n) { return (n.left.type === "VariableDeclaration" ? "Declaration" : left(n.left)) + "ForIn" },
   CallExpression:       function (n) { return (n.callee.name === "eval" ? "Eval" : (n.callee.type === "MemberExpression" ? "Member" : "")) + "Call" },
-  ObjectExpression:     function (n) {
-    for (var i=0; i<n.properties.length; i++) {
-      if (n.properties[i].kind !== "init") {
-        return "AccessorObject"
-      }
-    }
-    return "DataObject"
-  },
   UnaryExpression:      function (n) {
     if (n.operator === "typeof" && n.argument.type === "Identifier") { return "IdentifierTypeof" }
     if (n.operator === "delete" && n.argument.type === "Identifier") { return "IdentifierDelete" }

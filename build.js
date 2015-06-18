@@ -276,19 +276,11 @@ expressions.Array = function (elements) {
   }
 }
 
-expressions.AccessorObject = function (properties) {
+expressions.Object = function (properties) {
   return {
-    $type: "AccessorObject",
+    $type: "Object",
     type: "ObjectExpression",
     properties: properties
-  }
-}
-
-expressions.DataObject = function (initproperties) {
-  return {
-    $type: "DataObject",
-    type: "ObjectExpression",
-    properties: initproperties
   }
 }
 
