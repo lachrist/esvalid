@@ -11,6 +11,7 @@ function left (n) {
 
 var types = {
   Identifier:           function (n) { return "Identifier" },
+  Debugger:             function (n) { return "Debugger" },
   LabeledStatement:     function (n) { return "Label" },
   Literal:              function (n) { return "Literal" },
   FunctionDeclaration:  function (n) { return "Definition" },

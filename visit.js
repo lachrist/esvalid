@@ -64,6 +64,7 @@ module.exports = function () {
   var stmts = {
     Empty: nil,
     Strict: nil,
+    Debugger: nil,
     Block: function (n) { nodes(n.body) },
     Expression: function (n) { childs.push(n.expression) },
     If: function (n) {
